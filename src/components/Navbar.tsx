@@ -1,17 +1,29 @@
 import { useState } from "react";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const navigation = [
-    { name: "Home", href: "#home" },
-    { name: "Branches", href: "#branches" },
-    { name: "Services", href: "#services" },
-    { name: "Doctors", href: "#doctors" },
-    { name: "Book Now", href: "#booking" },
+    { name: t('nav.home'), href: "#home" },
+    { name: t('nav.branches'), href: "#branches" },
+    { name: t('nav.services'), href: "#services" },
+    { name: t('nav.doctors'), href: "#doctors" },
+    { name: t('nav.bookNow'), href: "#booking" },
   ];
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-md border-b border-border z-50 shadow-soft">
@@ -41,11 +53,27 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Contact Button */}
+          {/* Language Switcher & Contact Button */}
           <div className="hidden md:flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <Globe className="h-4 w-4" />
+                  {i18n.language === 'ms' ? 'BM' : 'EN'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-background">
+                <DropdownMenuItem onClick={() => changeLanguage('en')} className="cursor-pointer">
+                  English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('ms')} className="cursor-pointer">
+                  Bahasa Melayu
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="outline" size="sm" className="gap-2">
               <Phone className="h-4 w-4" />
-              Contact Us
+              {t('nav.contactUs')}
             </Button>
           </div>
 
@@ -71,10 +99,26 @@ const Navbar = () => {
                 {item.name}
               </a>
             ))}
-            <div className="px-4 pt-2">
+            <div className="px-4 pt-2 space-y-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="w-full gap-2 justify-center">
+                    <Globe className="h-4 w-4" />
+                    {i18n.language === 'ms' ? 'Bahasa Melayu' : 'English'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="bg-background">
+                  <DropdownMenuItem onClick={() => changeLanguage('en')} className="cursor-pointer">
+                    English
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeLanguage('ms')} className="cursor-pointer">
+                    Bahasa Melayu
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button variant="outline" size="sm" className="w-full gap-2">
                 <Phone className="h-4 w-4" />
-                Contact Us
+                {t('nav.contactUs')}
               </Button>
             </div>
           </div>

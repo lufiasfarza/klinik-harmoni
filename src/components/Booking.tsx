@@ -10,8 +10,10 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const Booking = () => {
+  const { t } = useTranslation();
   const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
     branch: "",
@@ -29,7 +31,7 @@ const Booking = () => {
     // API integration point - ready for Laravel backend
     console.log("Booking submission:", { ...formData, date });
     
-    toast.success("Booking request received! We'll confirm via email shortly.");
+    toast.success(t('booking.success'));
     
     // Reset form
     setFormData({
@@ -53,10 +55,10 @@ const Booking = () => {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">
-            Book Your Appointment
+            {t('booking.title')}
           </h2>
           <p className="text-lg text-muted-foreground">
-            Choose your preferred branch, doctor, and time slot
+            {t('booking.description')}
           </p>
         </div>
 
@@ -65,10 +67,10 @@ const Booking = () => {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Branch Selection */}
               <div className="space-y-2">
-                <Label htmlFor="branch">Select Branch *</Label>
+                <Label htmlFor="branch">{t('booking.branch')} *</Label>
                 <Select value={formData.branch} onValueChange={(value) => handleChange("branch", value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a branch" />
+                    <SelectValue placeholder={t('booking.selectBranch')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="kl-central">KL Central</SelectItem>
@@ -83,10 +85,10 @@ const Booking = () => {
 
               {/* Doctor Selection */}
               <div className="space-y-2">
-                <Label htmlFor="doctor">Select Doctor *</Label>
+                <Label htmlFor="doctor">{t('booking.doctor')} *</Label>
                 <Select value={formData.doctor} onValueChange={(value) => handleChange("doctor", value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a doctor" />
+                    <SelectValue placeholder={t('booking.selectDoctor')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="dr-alicia">Dr. Alicia Tan</SelectItem>
@@ -98,10 +100,10 @@ const Booking = () => {
 
               {/* Service Selection */}
               <div className="space-y-2">
-                <Label htmlFor="service">Select Service *</Label>
+                <Label htmlFor="service">{t('booking.service')} *</Label>
                 <Select value={formData.service} onValueChange={(value) => handleChange("service", value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a service" />
+                    <SelectValue placeholder={t('booking.selectService')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="physiotherapy">Physiotherapy</SelectItem>
@@ -113,7 +115,7 @@ const Booking = () => {
 
               {/* Date Selection */}
               <div className="space-y-2">
-                <Label>Preferred Date *</Label>
+                <Label>{t('booking.date')} *</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -124,7 +126,7 @@ const Booking = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      {date ? format(date, "PPP") : <span>{t('booking.pickDate')}</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -142,10 +144,10 @@ const Booking = () => {
 
               {/* Time Selection */}
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="time">Preferred Time *</Label>
-                <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a time slot" />
+              <Label htmlFor="time">{t('booking.time')} *</Label>
+              <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('booking.selectTime')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="9:00">9:00 AM</SelectItem>
@@ -165,36 +167,33 @@ const Booking = () => {
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name *</Label>
+                  <Label htmlFor="name">{t('booking.name')} *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
-                    placeholder="Enter your full name"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Label htmlFor="phone">{t('booking.phone')} *</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
-                    placeholder="+60 12-345 6789"
                     required
                   />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email">Email Address *</Label>
+                  <Label htmlFor="email">{t('booking.email')} *</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
-                    placeholder="your.email@example.com"
                     required
                   />
                 </div>
@@ -202,7 +201,7 @@ const Booking = () => {
             </div>
 
             <Button type="submit" size="lg" className="w-full">
-              Confirm Booking
+              {t('booking.submit')}
             </Button>
 
             <p className="text-sm text-muted-foreground text-center">

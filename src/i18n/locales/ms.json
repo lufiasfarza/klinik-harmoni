@@ -1,0 +1,102 @@
+{
+  "nav": {
+    "home": "Laman Utama",
+    "branches": "Cawangan",
+    "services": "Perkhidmatan",
+    "doctors": "Doktor",
+    "bookNow": "Tempah Sekarang",
+    "contactUs": "Hubungi Kami"
+  },
+  "hero": {
+    "badge": "Kecemerlangan Penjagaan Kesihatan Berprestij",
+    "title": "Perjalanan Anda Ke",
+    "titleHighlight": "Kesihatan Sempurna",
+    "description": "Alami penjagaan kesihatan bertaraf dunia di 13 cawangan di seluruh negara. Fisioterapi profesional, rawatan holistik, dan penjagaan penuh belas kasihan yang disesuaikan dengan keperluan anda.",
+    "bookAppointment": "Tempah Temujanji",
+    "findBranch": "Cari Cawangan",
+    "branches": "Cawangan",
+    "specialists": "Pakar",
+    "happyPatients": "Pesakit Gembira"
+  },
+  "services": {
+    "title": "Perkhidmatan & Pakej Kami",
+    "description": "Penyelesaian penjagaan kesihatan komprehensif disesuaikan dengan keperluan anda",
+    "focusTitle": "Klinik Fokus",
+    "focusDescription": "Penjagaan khusus untuk masalah kesihatan tertentu",
+    "learnMore": "Ketahui Lebih Lanjut",
+    "price": "Harga",
+    "bookNow": "Tempah Sekarang",
+    "close": "Tutup"
+  },
+  "doctors": {
+    "title": "Profesional Perubatan Kami",
+    "description": "Kenali pasukan doktor kami yang berpengalaman dan berdedikasi",
+    "generalPractitioner": "Pengamal Am",
+    "specialist": "Pakar",
+    "schedule": "Jadual",
+    "branch": "Cawangan"
+  },
+  "branches": {
+    "title": "Lokasi Klinik Kami",
+    "description": "Cari klinik berhampiran anda - kami di sini untuk melayani anda di seluruh Malaysia",
+    "searchPlaceholder": "Cari mengikut lokasi, negeri atau nama doktor...",
+    "whatsapp": "WhatsApp",
+    "maps": "Peta",
+    "waze": "Waze",
+    "operatingHours": "Waktu Operasi",
+    "residentDoctor": "Doktor Pemastautin",
+    "noResults": "Tiada cawangan dijumpai. Cuba istilah carian yang berbeza."
+  },
+  "booking": {
+    "title": "Tempah Temujanji Anda",
+    "description": "Pilih cawangan, doktor dan masa pilihan anda",
+    "branch": "Cawangan",
+    "selectBranch": "Pilih cawangan",
+    "doctor": "Doktor",
+    "selectDoctor": "Pilih doktor",
+    "service": "Perkhidmatan",
+    "selectService": "Pilih perkhidmatan",
+    "date": "Tarikh Temujanji",
+    "pickDate": "Pilih tarikh",
+    "time": "Masa Pilihan",
+    "selectTime": "Pilih masa",
+    "name": "Nama Penuh",
+    "phone": "Nombor Telefon",
+    "email": "Alamat E-mel",
+    "submit": "Tempah Temujanji",
+    "success": "Temujanji berjaya ditempah! Kami akan menghubungi anda tidak lama lagi.",
+    "morning": "Pagi (9:00 AM - 12:00 PM)",
+    "afternoon": "Petang (2:00 PM - 5:00 PM)",
+    "evening": "Malam (6:00 PM - 9:00 PM)"
+  },
+  "testimonials": {
+    "badge": "Ulasan Pesakit",
+    "title": "Kata Pesakit Kami",
+    "description": "Pengalaman sebenar daripada mereka yang mempercayai kami dengan kesihatan mereka"
+  },
+  "footer": {
+    "tagline": "Penjagaan Kesihatan Profesional",
+    "description": "Menyediakan perkhidmatan penjagaan kesihatan berkualiti di seluruh Malaysia dengan profesional perubatan berpengalaman dan kemudahan moden.",
+    "quickLinks": "Pautan Pantas",
+    "home": "Laman Utama",
+    "services": "Perkhidmatan",
+    "doctors": "Doktor",
+    "locations": "Lokasi",
+    "bookAppointment": "Tempah Temujanji",
+    "ourServices": "Perkhidmatan Kami",
+    "physiotherapy": "Fisioterapi",
+    "massage": "Urutan Terapeutik",
+    "sports": "Perubatan Sukan",
+    "rehabilitation": "Pemulihan",
+    "wellness": "Program Kesihatan",
+    "contact": "Hubungi Kami",
+    "address": "Kuala Lumpur, Malaysia",
+    "phone": "+60 3-1234 5678",
+    "email": "info@elitewellness.com",
+    "followUs": "Ikuti Kami",
+    "rights": "Elite Wellness. Hak cipta terpelihara.",
+    "privacy": "Dasar Privasi",
+    "terms": "Syarat Perkhidmatan",
+    "pdpa": "Pematuhan PDPA"
+  }
+}

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, Clock, Search, Navigation, Map } from "lucide-react";
 import { MessageCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Import clinic photos
 import clinicKLCentral from "@/assets/clinic-kl-central.jpg";
@@ -320,6 +321,7 @@ const branchesData: Branch[] = [
 ];
 
 const Branches = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredBranches = branchesData.filter(branch => {
@@ -344,10 +346,10 @@ const Branches = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">
-            Our Locations
+            {t('branches.title')}
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
-            13 premium wellness centers across Malaysia, bringing expert healthcare to your doorstep
+            {t('branches.description')}
           </p>
 
           {/* Search Bar */}
@@ -355,7 +357,7 @@ const Branches = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search by location, city, or doctor name..."
+              placeholder={t('branches.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-12 pr-4 py-6 text-base border-primary/20 focus:border-primary rounded-xl shadow-soft"
@@ -410,7 +412,7 @@ const Branches = () => {
                     className="flex-1 min-w-[140px] bg-[#25D366] hover:bg-[#20BA5A] text-white border-0 h-11 text-sm font-medium shadow-soft"
                   >
                     <MessageCircle className="h-4 w-4 mr-2" />
-                    WhatsApp
+                    {t('branches.whatsapp')}
                   </Button>
 
                   {/* Maps Button */}
@@ -420,7 +422,7 @@ const Branches = () => {
                     className="flex-1 min-w-[70px] h-11 border-primary/30 hover:bg-primary/10 hover:border-primary text-primary"
                   >
                     <Map className="h-4 w-4 mr-2" />
-                    Maps
+                    {t('branches.maps')}
                   </Button>
 
                   {/* Waze Button */}
@@ -430,7 +432,7 @@ const Branches = () => {
                     className="flex-1 min-w-[70px] h-11 border-primary/30 hover:bg-primary/10 hover:border-primary text-primary"
                   >
                     <Navigation className="h-4 w-4 mr-2" />
-                    Waze
+                    {t('branches.waze')}
                   </Button>
                 </div>
 
@@ -449,7 +451,7 @@ const Branches = () => {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-xs font-semibold text-foreground">Operating Hours</span>
+                    <span className="text-xs font-semibold text-foreground">{t('branches.operatingHours')}</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary" className="text-xs px-3 py-1">
@@ -464,7 +466,7 @@ const Branches = () => {
                 {/* Doctor Profile */}
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs font-semibold text-muted-foreground mb-3">
-                    RESIDENT DOCTOR
+                    {t('branches.residentDoctor').toUpperCase()}
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="relative">

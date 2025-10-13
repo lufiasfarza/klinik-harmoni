@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Star, Quote } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // Import patient photos
 import patientSarah from "@/assets/patient-sarah.jpg";
@@ -58,6 +59,7 @@ const testimonialsData: Testimonial[] = [
 ];
 
 const Testimonials = () => {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -74,13 +76,13 @@ const Testimonials = () => {
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
           <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
             <Star className="h-4 w-4 text-primary fill-primary" />
-            <span className="text-sm font-semibold text-primary">Patient Reviews</span>
+            <span className="text-sm font-semibold text-primary">{t('testimonials.badge')}</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">
-            What Our Patients Say
+            {t('testimonials.title')}
           </h2>
           <p className="text-lg text-muted-foreground">
-            Real experiences from real people who trust us with their health
+            {t('testimonials.description')}
           </p>
         </div>
 

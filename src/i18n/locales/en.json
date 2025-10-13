@@ -1,0 +1,102 @@
+{
+  "nav": {
+    "home": "Home",
+    "branches": "Branches",
+    "services": "Services",
+    "doctors": "Doctors",
+    "bookNow": "Book Now",
+    "contactUs": "Contact Us"
+  },
+  "hero": {
+    "badge": "Award-Winning Healthcare Excellence",
+    "title": "Your Journey to",
+    "titleHighlight": "Complete Wellness",
+    "description": "Experience world-class healthcare across 13 branches nationwide. Professional physiotherapy, holistic treatments, and compassionate care tailored to your needs.",
+    "bookAppointment": "Book Appointment",
+    "findBranch": "Find a Branch",
+    "branches": "Branches",
+    "specialists": "Specialists",
+    "happyPatients": "Happy Patients"
+  },
+  "services": {
+    "title": "Our Services & Packages",
+    "description": "Comprehensive healthcare solutions tailored to your needs",
+    "focusTitle": "Focus Clinic",
+    "focusDescription": "Specialized care for specific health concerns",
+    "learnMore": "Learn More",
+    "price": "Price",
+    "bookNow": "Book Now",
+    "close": "Close"
+  },
+  "doctors": {
+    "title": "Our Medical Professionals",
+    "description": "Meet our team of experienced and dedicated doctors",
+    "generalPractitioner": "General Practitioner",
+    "specialist": "Specialist",
+    "schedule": "Schedule",
+    "branch": "Branch"
+  },
+  "branches": {
+    "title": "Our Clinic Locations",
+    "description": "Find a clinic near you - we're here to serve you across Malaysia",
+    "searchPlaceholder": "Search by location, state, or doctor name...",
+    "whatsapp": "WhatsApp",
+    "maps": "Maps",
+    "waze": "Waze",
+    "operatingHours": "Operating Hours",
+    "residentDoctor": "Resident Doctor",
+    "noResults": "No branches found. Try a different search term."
+  },
+  "booking": {
+    "title": "Book Your Appointment",
+    "description": "Choose your preferred branch, doctor, and time slot",
+    "branch": "Branch",
+    "selectBranch": "Select a branch",
+    "doctor": "Doctor",
+    "selectDoctor": "Select a doctor",
+    "service": "Service",
+    "selectService": "Select a service",
+    "date": "Appointment Date",
+    "pickDate": "Pick a date",
+    "time": "Preferred Time",
+    "selectTime": "Select time",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "email": "Email Address",
+    "submit": "Book Appointment",
+    "success": "Appointment booked successfully! We'll contact you shortly.",
+    "morning": "Morning (9:00 AM - 12:00 PM)",
+    "afternoon": "Afternoon (2:00 PM - 5:00 PM)",
+    "evening": "Evening (6:00 PM - 9:00 PM)"
+  },
+  "testimonials": {
+    "badge": "Patient Reviews",
+    "title": "What Our Patients Say",
+    "description": "Real experiences from people who trust us with their health"
+  },
+  "footer": {
+    "tagline": "Professional Healthcare",
+    "description": "Providing quality healthcare services across Malaysia with experienced medical professionals and modern facilities.",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "services": "Services",
+    "doctors": "Doctors",
+    "locations": "Locations",
+    "bookAppointment": "Book Appointment",
+    "ourServices": "Our Services",
+    "physiotherapy": "Physiotherapy",
+    "massage": "Therapeutic Massage",
+    "sports": "Sports Medicine",
+    "rehabilitation": "Rehabilitation",
+    "wellness": "Wellness Programs",
+    "contact": "Contact Us",
+    "address": "Kuala Lumpur, Malaysia",
+    "phone": "+60 3-1234 5678",
+    "email": "info@elitewellness.com",
+    "followUs": "Follow Us",
+    "rights": "Elite Wellness. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "pdpa": "PDPA Compliance"
+  }
+}

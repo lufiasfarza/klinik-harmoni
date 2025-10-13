@@ -1,6 +1,9 @@
 import { MapPin, Phone, Mail, Facebook, Instagram, Linkedin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
+  
   return (
     <footer className="bg-foreground text-background py-16">
       <div className="container mx-auto px-4">
@@ -13,59 +16,56 @@ const Footer = () => {
               </div>
               <div>
                 <h3 className="font-heading font-semibold text-lg">Elite Wellness</h3>
-                <p className="text-xs text-background/70">Professional Healthcare</p>
+                <p className="text-xs text-background/70">{t('footer.tagline')}</p>
               </div>
             </div>
             <p className="text-sm text-background/80 leading-relaxed">
-              Your trusted partner in health and wellness across Malaysia.
+              {t('footer.description')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold mb-4 text-background">Quick Links</h4>
+            <h4 className="font-semibold mb-4 text-background">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2">
-              <li><a href="#home" className="text-sm text-background/80 hover:text-primary transition-colors">Home</a></li>
-              <li><a href="#services" className="text-sm text-background/80 hover:text-primary transition-colors">Services</a></li>
-              <li><a href="#doctors" className="text-sm text-background/80 hover:text-primary transition-colors">Our Doctors</a></li>
-              <li><a href="#branches" className="text-sm text-background/80 hover:text-primary transition-colors">Locations</a></li>
-              <li><a href="#booking" className="text-sm text-background/80 hover:text-primary transition-colors">Book Appointment</a></li>
+              <li><a href="#home" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.home')}</a></li>
+              <li><a href="#services" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.services')}</a></li>
+              <li><a href="#doctors" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.doctors')}</a></li>
+              <li><a href="#branches" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.locations')}</a></li>
+              <li><a href="#booking" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.bookAppointment')}</a></li>
             </ul>
           </div>
 
           {/* Services */}
           <div>
-            <h4 className="font-semibold mb-4 text-background">Our Services</h4>
+            <h4 className="font-semibold mb-4 text-background">{t('footer.ourServices')}</h4>
             <ul className="space-y-2">
-              <li className="text-sm text-background/80">Physiotherapy</li>
-              <li className="text-sm text-background/80">Therapeutic Massage</li>
-              <li className="text-sm text-background/80">Medical Consultation</li>
-              <li className="text-sm text-background/80">Sports Medicine</li>
-              <li className="text-sm text-background/80">Pain Management</li>
+              <li className="text-sm text-background/80">{t('footer.physiotherapy')}</li>
+              <li className="text-sm text-background/80">{t('footer.massage')}</li>
+              <li className="text-sm text-background/80">{t('footer.sports')}</li>
+              <li className="text-sm text-background/80">{t('footer.rehabilitation')}</li>
+              <li className="text-sm text-background/80">{t('footer.wellness')}</li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold mb-4 text-background">Contact Us</h4>
+            <h4 className="font-semibold mb-4 text-background">{t('footer.contact')}</h4>
             <div className="space-y-3">
               <div className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-background/80">
-                  Level 5, Pavilion KL<br />
-                  Kuala Lumpur, Malaysia
-                </p>
+                <p className="text-sm text-background/80">{t('footer.address')}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-primary flex-shrink-0" />
                 <a href="tel:+60321428888" className="text-sm text-background/80 hover:text-primary transition-colors">
-                  +603-2142 8888
+                  {t('footer.phone')}
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0" />
                 <a href="mailto:info@elitewellness.my" className="text-sm text-background/80 hover:text-primary transition-colors">
-                  info@elitewellness.my
+                  {t('footer.email')}
                 </a>
               </div>
             </div>
@@ -89,12 +89,12 @@ const Footer = () => {
         <div className="border-t border-background/20 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-background/60">
-              © 2025 Elite Wellness Clinic. All rights reserved.
+              {t('footer.rights')}
             </p>
             <div className="flex gap-6">
-              <a href="#" className="text-sm text-background/60 hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="text-sm text-background/60 hover:text-primary transition-colors">Terms of Service</a>
-              <a href="#" className="text-sm text-background/60 hover:text-primary transition-colors">PDPA Compliance</a>
+              <a href="#" className="text-sm text-background/60 hover:text-primary transition-colors">{t('footer.privacy')}</a>
+              <a href="#" className="text-sm text-background/60 hover:text-primary transition-colors">{t('footer.terms')}</a>
+              <a href="#" className="text-sm text-background/60 hover:text-primary transition-colors">{t('footer.pdpa')}</a>
             </div>
           </div>
         </div>
