@@ -29,7 +29,7 @@ const Hero = () => {
             </h1>
             
             <p className="text-xl md:text-2xl text-primary-foreground/90 mb-8 leading-relaxed">
-              Experience world-class healthcare across 11 branches nationwide. Professional physiotherapy, holistic treatments, and compassionate care tailored to your needs.
+              Experience world-class healthcare across 13 branches nationwide. Professional physiotherapy, holistic treatments, and compassionate care tailored to your needs.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -52,15 +52,15 @@ const Hero = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 max-w-2xl">
-              <div className="text-center p-4 bg-background/10 backdrop-blur-sm rounded-lg border border-primary-foreground/20">
-                <div className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-1">11+</div>
+              <div className="text-center p-4 bg-background/10 backdrop-blur-sm rounded-xl border border-primary-foreground/20 hover:bg-background/20 transition-all duration-300">
+                <div className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-1">13</div>
                 <div className="text-sm text-primary-foreground/80">Branches</div>
               </div>
-              <div className="text-center p-4 bg-background/10 backdrop-blur-sm rounded-lg border border-primary-foreground/20">
+              <div className="text-center p-4 bg-background/10 backdrop-blur-sm rounded-xl border border-primary-foreground/20 hover:bg-background/20 transition-all duration-300">
                 <div className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-1">50+</div>
                 <div className="text-sm text-primary-foreground/80">Specialists</div>
               </div>
-              <div className="text-center p-4 bg-background/10 backdrop-blur-sm rounded-lg border border-primary-foreground/20">
+              <div className="text-center p-4 bg-background/10 backdrop-blur-sm rounded-xl border border-primary-foreground/20 hover:bg-background/20 transition-all duration-300">
                 <div className="text-3xl md:text-4xl font-heading font-bold text-primary-foreground mb-1">10K+</div>
                 <div className="text-sm text-primary-foreground/80">Happy Patients</div>
               </div>
