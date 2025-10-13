@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/HeroCarousel";
 import QuickBooking from "@/components/QuickBooking";
+import Stats from "@/components/Stats";
 import Services from "@/components/Services";
 import Doctors from "@/components/Doctors";
 import Branches from "@/components/Branches";
@@ -14,6 +15,7 @@ const Index = () => {
       <Navbar />
       <HeroCarousel />
       <QuickBooking />
+      <Stats />
       <Services />
       <Doctors />
       <Branches />

@@ -46,9 +46,9 @@ const QuickBooking = () => {
   };
 
   return (
-    <section className="py-12 bg-background relative -mt-20 z-20">
+    <section className="py-12 bg-background relative -mt-20 z-20 md:static">
       <div className="container mx-auto px-4">
-        <Card className="max-w-5xl mx-auto p-8 md:p-10 shadow-elevated border-0 rounded-2xl bg-card">
+        <Card className="max-w-5xl mx-auto p-8 md:p-10 shadow-elevated border-0 rounded-2xl bg-card md:relative fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto md:rounded-2xl rounded-t-2xl z-50 md:z-20 max-h-[90vh] overflow-y-auto">
           <div className="mb-6">
             <h3 className="text-2xl md:text-3xl font-heading font-bold text-foreground mb-2">
               Quick Appointment Booking

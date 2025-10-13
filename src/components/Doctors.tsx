@@ -1,11 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock } from "lucide-react";
-import doctor1 from "@/assets/doctor-1.jpg";
-import doctor2 from "@/assets/doctor-2.jpg";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { MapPin, Clock, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import doctorSarah from "@/assets/doctor-sarah.jpg";
+import doctorAhmad from "@/assets/doctor-ahmad.jpg";
+import doctorMei from "@/assets/doctor-mei.jpg";
 
 interface Doctor {
-  id: number;
+  id: string;
   name: string;
   role: string;
   specialization: string;
@@ -17,28 +21,40 @@ interface Doctor {
 
 const doctorsData: Doctor[] = [
   {
-    id: 1,
-    name: "Dr. Alicia Tan",
+    id: "sarah-lim",
+    name: "Dr. Sarah Lim",
     role: "Medical Director",
-    specialization: "Pain Management & Rehabilitation",
-    image: doctor1,
-    branch: "Kuala Lumpur Central",
-    schedule: "Mon - Fri, 9:00 AM - 5:00 PM",
-    bio: "15+ years of experience in advanced pain management and post-operative rehabilitation."
+    specialization: "General Practice & Family Medicine",
+    image: doctorSarah,
+    branch: "KL Central",
+    schedule: "Mon-Sat: 9:00 AM - 8:00 PM",
+    bio: "15+ years of experience in family medicine and preventive care."
   },
   {
-    id: 2,
-    name: "Ahmad Zulkifli",
-    role: "Senior Physiotherapist",
-    specialization: "Sports Medicine & Injury Prevention",
-    image: doctor2,
+    id: "ahmad-razak",
+    name: "Dr. Ahmad Razak",
+    role: "Senior General Practitioner",
+    specialization: "Internal Medicine",
+    image: doctorAhmad,
     branch: "Petaling Jaya",
-    schedule: "Tue - Sat, 10:00 AM - 6:00 PM",
-    bio: "Certified sports physiotherapist specializing in athletic performance and injury recovery."
+    schedule: "Mon-Sat: 9:00 AM - 8:00 PM",
+    bio: "Specializing in chronic disease management and holistic care."
   },
+  {
+    id: "mei-chen",
+    name: "Dr. Mei Chen",
+    role: "Consultant Physician",
+    specialization: "Women's Health & Pediatrics",
+    image: doctorMei,
+    branch: "Bangsar",
+    schedule: "Mon-Fri: 10:00 AM - 7:00 PM",
+    bio: "Dedicated to compassionate care for mothers and children."
+  }
 ];
 
 const Doctors = () => {
+  const navigate = useNavigate();
+  
   return (
     <section id="doctors" className="py-24 bg-background">
       <div className="container mx-auto px-4">
@@ -51,43 +67,57 @@ const Doctors = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {doctorsData.map((doctor, index) => (
             <Card 
               key={doctor.id}
-              className="overflow-hidden hover-lift border-0 shadow-card"
+              className="overflow-hidden hover-lift border-0 shadow-card group cursor-pointer transition-all"
               style={{ animationDelay: `${index * 100}ms` }}
+              onClick={() => navigate(`/doctor/${doctor.id}`)}
             >
-              <div className="relative h-80 overflow-hidden">
+              <div className="relative h-64 overflow-hidden">
                 <img
                   src={doctor.image}
                   alt={doctor.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-foreground/90 to-transparent p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
                   <Badge className="mb-2 bg-primary text-primary-foreground">{doctor.role}</Badge>
-                  <h3 className="text-2xl font-heading font-semibold text-background mb-1">
+                  <h3 className="text-xl font-heading font-semibold text-background mb-1">
                     {doctor.name}
                   </h3>
-                  <p className="text-sm text-background/80">{doctor.specialization}</p>
+                  <p className="text-sm text-background/90">{doctor.specialization}</p>
                 </div>
               </div>
               
               <div className="p-6 space-y-4">
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm line-clamp-2">
                   {doctor.bio}
                 </p>
                 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-primary" />
+                    <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                     <span className="text-foreground">{doctor.branch}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-primary" />
+                    <Clock className="h-4 w-4 text-primary flex-shrink-0" />
                     <span className="text-foreground">{doctor.schedule}</span>
                   </div>
                 </div>
+
+                <Button 
+                  variant="ghost" 
+                  className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/doctor/${doctor.id}`);
+                  }}
+                >
+                  View Full Profile
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
               </div>
             </Card>
           ))}

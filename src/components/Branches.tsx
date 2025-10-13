@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Phone, Clock, Search, Navigation, Map } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -323,16 +324,29 @@ const branchesData: Branch[] = [
 const Branches = () => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedState, setSelectedState] = useState("all");
+  const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedDoctor, setSelectedDoctor] = useState("all");
+
+  // Get unique values for filters
+  const states = ["all", ...Array.from(new Set(branchesData.map(b => b.state)))];
+  const cities = ["all", ...Array.from(new Set(branchesData.map(b => b.city)))];
+  const doctors = ["all", ...Array.from(new Set(branchesData.map(b => b.doctor.name)))];
 
   const filteredBranches = branchesData.filter(branch => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = 
       branch.name.toLowerCase().includes(query) ||
       branch.city.toLowerCase().includes(query) ||
       branch.state.toLowerCase().includes(query) ||
       branch.doctor.name.toLowerCase().includes(query) ||
-      branch.address.toLowerCase().includes(query)
-    );
+      branch.address.toLowerCase().includes(query);
+    
+    const matchesState = selectedState === "all" || branch.state === selectedState;
+    const matchesCity = selectedCity === "all" || branch.city === selectedCity;
+    const matchesDoctor = selectedDoctor === "all" || branch.doctor.name === selectedDoctor;
+    
+    return matchesSearch && matchesState && matchesCity && matchesDoctor;
   });
 
   const handleWhatsApp = (whatsapp: string, branchName: string) => {
@@ -353,7 +367,7 @@ const Branches = () => {
           </p>
 
           {/* Search Bar */}
-          <div className="relative max-w-md mx-auto">
+          <div className="relative max-w-md mx-auto mb-6">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="text"
@@ -362,6 +376,48 @@ const Branches = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-12 pr-4 py-6 text-base border-primary/20 focus:border-primary rounded-xl shadow-soft"
             />
+          </div>
+
+          {/* Filter Dropdowns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            <Select value={selectedState} onValueChange={setSelectedState}>
+              <SelectTrigger className="h-12 bg-background">
+                <SelectValue placeholder="Filter by State" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {states.map(state => (
+                  <SelectItem key={state} value={state}>
+                    {state === "all" ? "All States" : state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectTrigger className="h-12 bg-background">
+                <SelectValue placeholder="Filter by City" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {cities.map(city => (
+                  <SelectItem key={city} value={city}>
+                    {city === "all" ? "All Cities" : city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
+              <SelectTrigger className="h-12 bg-background">
+                <SelectValue placeholder="Filter by Doctor" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {doctors.map(doctor => (
+                  <SelectItem key={doctor} value={doctor}>
+                    {doctor === "all" ? "All Doctors" : doctor}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

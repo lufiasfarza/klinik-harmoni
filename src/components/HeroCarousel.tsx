@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import promoVaccines from "@/assets/promo-vaccines.jpg";
@@ -13,6 +14,7 @@ interface Slide {
   subtitle: string;
   cta: string;
   ctaLink: string;
+  badge?: string;
 }
 
 const HeroCarousel = () => {
@@ -26,7 +28,8 @@ const HeroCarousel = () => {
       title: "Special Vaccine Package",
       subtitle: "Protect your family with our comprehensive vaccination program. Limited time offer - 20% off all vaccines.",
       cta: "Book Now",
-      ctaLink: "#booking"
+      ctaLink: "#booking",
+      badge: "Promo"
     },
     {
       id: 2,
@@ -34,7 +37,8 @@ const HeroCarousel = () => {
       title: "Complete Health Check Bundle",
       subtitle: "Full body screening with advanced diagnostics. Early detection for better health outcomes.",
       cta: "See Packages",
-      ctaLink: "#services"
+      ctaLink: "#services",
+      badge: "Popular"
     },
     {
       id: 3,
@@ -42,7 +46,8 @@ const HeroCarousel = () => {
       title: "Premium Physiotherapy Sessions",
       subtitle: "Expert rehabilitation and pain management. First session 30% off for new patients.",
       cta: "Learn More",
-      ctaLink: "#services"
+      ctaLink: "#services",
+      badge: "New"
     }
   ];
 
@@ -91,6 +96,11 @@ const HeroCarousel = () => {
             <div className="absolute inset-0 flex items-center">
               <div className="container mx-auto px-4">
                 <div className="max-w-2xl">
+                  {slide.badge && (
+                    <Badge className="mb-4 px-4 py-1.5 text-sm font-semibold bg-secondary text-secondary-foreground animate-bounce">
+                      {slide.badge}
+                    </Badge>
+                  )}
                   <h2 className="text-4xl md:text-6xl font-heading font-bold text-primary-foreground mb-4 animate-fade-in">
                     {slide.title}
                   </h2>
@@ -100,7 +110,7 @@ const HeroCarousel = () => {
                   <a href={slide.ctaLink}>
                     <Button 
                       size="lg" 
-                      className="bg-background text-primary hover:bg-background/90 shadow-elevated animate-scale-in"
+                      className="bg-background text-primary hover:bg-background/90 hover:scale-105 transition-all shadow-elevated animate-scale-in"
                     >
                       {slide.cta}
                     </Button>
