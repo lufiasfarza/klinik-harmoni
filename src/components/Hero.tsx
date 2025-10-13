@@ -1,5 +1,6 @@
 import { Calendar, MapPin, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import LazyImage from "@/components/LazyImage";
 import heroImage from "@/assets/hero-clinic.jpg";
 import { useTranslation } from "react-i18next";
 
@@ -10,7 +11,7 @@ const Hero = () => {
     <section id="home" className="relative min-h-screen flex items-center pt-20">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
+        <LazyImage
           src={heroImage}
           alt="Modern Elite Wellness Clinic interior"
           className="w-full h-full object-cover"

@@ -7,18 +7,24 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
 import { format } from "date-fns";
-import { CalendarIcon, Phone, MapPin, Stethoscope, X, ChevronRight, ChevronLeft } from "lucide-react";
+import { CalendarIcon, Phone, MapPin, Stethoscope, X, ChevronRight, ChevronLeft, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
+import SmartBranchSelector from "./SmartBranchSelector";
+import AvailabilityChecker from "./AvailabilityChecker";
+import BookingConfirmation from "./BookingConfirmation";
 
 // Validation schema
 const bookingSchema = z.object({
   branch: z.string().min(1, "Please select a branch"),
   service: z.string().min(1, "Please select a service"),
   date: z.date({ required_error: "Please select a date" }),
+  time: z.string().min(1, "Please select a time slot"),
   phone: z.string().min(10, "Please enter a valid phone number").max(15),
+  name: z.string().min(2, "Please enter your full name"),
+  email: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
 });
 
 interface QuickBookingProps {
@@ -34,10 +40,14 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
     branch: "",
     service: "",
     phone: "",
+    name: "",
+    email: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [bookingId, setBookingId] = useState<string>("");
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const validateStep = (currentStep: number): boolean => {
     const newErrors: Record<string, string> = {};
@@ -51,10 +61,21 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
     if (currentStep === 2 && !date) {
       newErrors.date = "Please select a date";
     }
+    if (currentStep === 2 && !formData.time) {
+      newErrors.time = "Please select a time slot";
+    }
     if (currentStep === 3 && !formData.phone) {
       newErrors.phone = "Please enter your phone number";
     } else if (currentStep === 3 && formData.phone && formData.phone.length < 10) {
       newErrors.phone = "Please enter a valid phone number";
+    }
+    if (currentStep === 4 && !formData.name) {
+      newErrors.name = "Please enter your full name";
+    } else if (currentStep === 4 && formData.name && formData.name.length < 2) {
+      newErrors.name = "Please enter a valid name";
+    }
+    if (currentStep === 4 && formData.email && !formData.email.includes("@")) {
+      newErrors.email = "Please enter a valid email address";
     }
 
     setErrors(newErrors);
@@ -77,24 +98,24 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       const validatedData = bookingSchema.parse({ ...formData, date });
+      
+      // Generate booking ID
+      const newBookingId = `EW${Date.now().toString().slice(-6)}`;
+      setBookingId(newBookingId);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       console.log("Quick booking:", validatedData);
       toast.success(t('booking.success'));
       
-      // Reset form
-      setFormData({
-        branch: "",
-        service: "",
-        phone: "",
-      });
-      setDate(undefined);
-      setStep(1);
-      setErrors({});
-      onOpenChange(false);
+      // Show confirmation
+      setShowConfirmation(true);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -109,6 +130,21 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
     }
   };
 
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+    setFormData({
+      branch: "",
+      service: "",
+      phone: "",
+      name: "",
+      email: "",
+    });
+    setDate(undefined);
+    setStep(1);
+    setErrors({});
+    onOpenChange(false);
+  };
+
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error for this field
@@ -116,6 +152,36 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
+
+  if (showConfirmation) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="max-h-[90vh]">
+          <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+            <X className="h-5 w-5" />
+            <span className="sr-only">Close</span>
+          </DrawerClose>
+          
+          <div className="overflow-y-auto">
+            <BookingConfirmation
+              bookingData={{
+                id: bookingId,
+                branch: formData.branch,
+                service: formData.service,
+                date: date!,
+                time: formData.time,
+                patientName: formData.name,
+                phone: formData.phone,
+                email: formData.email,
+                status: 'confirmed' as const,
+              }}
+              onClose={handleConfirmationClose}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -159,34 +225,14 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
                   <p className="text-muted-foreground">Choose the branch nearest to you</p>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="branch" className="text-base">
-                    {t('booking.branch')} *
-                  </Label>
-                  <Select value={formData.branch} onValueChange={(value) => handleChange("branch", value)}>
-                    <SelectTrigger className={cn("h-14 text-base", errors.branch && "border-destructive")}>
-                      <SelectValue placeholder={t('booking.selectBranch')} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background max-h-[300px]">
-                      <SelectItem value="kl-central">KL Central</SelectItem>
-                      <SelectItem value="petaling-jaya">Petaling Jaya</SelectItem>
-                      <SelectItem value="bangsar">Bangsar</SelectItem>
-                      <SelectItem value="mont-kiara">Mont Kiara</SelectItem>
-                      <SelectItem value="subang-jaya">Subang Jaya</SelectItem>
-                      <SelectItem value="damansara">Damansara</SelectItem>
-                      <SelectItem value="shah-alam">Shah Alam</SelectItem>
-                      <SelectItem value="johor-bahru">Johor Bahru</SelectItem>
-                      <SelectItem value="penang">Penang</SelectItem>
-                      <SelectItem value="ipoh">Ipoh</SelectItem>
-                      <SelectItem value="melaka">Melaka</SelectItem>
-                      <SelectItem value="kota-kinabalu">Kota Kinabalu</SelectItem>
-                      <SelectItem value="kuching">Kuching</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.branch && (
-                    <p className="text-sm text-destructive mt-1">{errors.branch}</p>
-                  )}
-                </div>
+                <SmartBranchSelector
+                  onBranchSelect={(branchId) => handleChange("branch", branchId)}
+                  selectedBranch={formData.branch}
+                />
+                
+                {errors.branch && (
+                  <p className="text-sm text-destructive mt-1">{errors.branch}</p>
+                )}
               </div>
             )}
 
@@ -258,6 +304,19 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
                     <p className="text-sm text-destructive mt-1">{errors.date}</p>
                   )}
                 </div>
+
+                {/* Real-time Availability Checker */}
+                {formData.branch && formData.service && date && (
+                  <div className="mt-6">
+                    <AvailabilityChecker
+                      branchId={formData.branch}
+                      serviceId={formData.service}
+                      selectedDate={date}
+                      onTimeSelect={(time) => handleChange("time", time)}
+                      selectedTime={formData.time}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -292,6 +351,75 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
                     <CalendarIcon className="h-4 w-4 mt-0.5 flex-shrink-0" />
                     <span>Our staff will contact you within 24 hours to confirm your appointment at <strong>{formData.branch.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</strong> for <strong>{formData.service.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</strong> on <strong>{date ? format(date, "PPP") : "selected date"}</strong>.</span>
                   </p>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Personal Details */}
+            {step === 4 && (
+              <div className="space-y-6 animate-fade-in">
+                <div className="text-center mb-6">
+                  <User className="h-12 w-12 mx-auto text-primary mb-2" />
+                  <h3 className="text-xl font-semibold mb-2">Personal Information</h3>
+                  <p className="text-muted-foreground">Complete your booking details</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-base">
+                      Full Name *
+                    </Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleChange("name", e.target.value)}
+                      placeholder="Enter your full name"
+                      className={cn("h-14 text-base", errors.name && "border-destructive")}
+                    />
+                    {errors.name && (
+                      <p className="text-sm text-destructive mt-1">{errors.name}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-base">
+                      Email Address
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleChange("email", e.target.value)}
+                      placeholder="your@email.com"
+                      className={cn("h-14 text-base", errors.email && "border-destructive")}
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Booking Summary */}
+                <div className="bg-muted/50 p-4 rounded-lg border border-border">
+                  <h4 className="font-medium mb-3">Booking Summary</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Branch:</span>
+                      <span className="font-medium">{formData.branch.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Service:</span>
+                      <span className="font-medium">{formData.service.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Date:</span>
+                      <span className="font-medium">{date ? format(date, "PPP") : "Not selected"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Time:</span>
+                      <span className="font-medium">{formData.time || "Not selected"}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

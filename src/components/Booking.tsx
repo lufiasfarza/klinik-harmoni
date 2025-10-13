@@ -11,6 +11,19 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
+import { apiService, handleApiError } from "@/services/api";
+
+// Enhanced validation schema
+const bookingSchema = z.object({
+  branch: z.string().min(1, "Please select a branch"),
+  doctor: z.string().min(1, "Please select a doctor"),
+  service: z.string().min(1, "Please select a service"),
+  time: z.string().min(1, "Please select a time"),
+  name: z.string().min(2, "Name must be at least 2 characters").max(50, "Name too long"),
+  phone: z.string().regex(/^[\+]?[0-9\s\-\(\)]{10,15}$/, "Invalid phone number"),
+  email: z.string().email("Invalid email address"),
+});
 
 const Booking = () => {
   const { t } = useTranslation();
@@ -24,30 +37,73 @@ const Booking = () => {
     phone: "",
     email: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    // API integration point - ready for Laravel backend
-    console.log("Booking submission:", { ...formData, date });
-    
-    toast.success(t('booking.success'));
-    
-    // Reset form
-    setFormData({
-      branch: "",
-      doctor: "",
-      service: "",
-      time: "",
-      name: "",
-      phone: "",
-      email: "",
-    });
-    setDate(undefined);
+    try {
+      // Validate form data
+      const validatedData = bookingSchema.parse({ ...formData, date });
+      
+      // Sanitize input data
+      const sanitizedData = {
+        ...validatedData,
+        name: validatedData.name.trim(),
+        email: validatedData.email.toLowerCase().trim(),
+        phone: validatedData.phone.replace(/\D/g, ''), // Remove non-digits
+      };
+      
+      // Call API service
+      const response = await apiService.createBooking(sanitizedData);
+      
+      if (response.success) {
+        toast.success(t('booking.success'));
+        
+        // Reset form
+        setFormData({
+          branch: "",
+          doctor: "",
+          service: "",
+          time: "",
+          name: "",
+          phone: "",
+          email: "",
+        });
+        setDate(undefined);
+        setErrors({});
+      } else {
+        toast.error(handleApiError(response));
+        if (response.errors) {
+          setErrors(response.errors);
+        }
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0].toString()] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        toast.error("Please check all fields");
+      } else {
+        toast.error("An error occurred. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
   };
 
   return (
@@ -69,7 +125,7 @@ const Booking = () => {
               <div className="space-y-2">
                 <Label htmlFor="branch">{t('booking.branch')} *</Label>
                 <Select value={formData.branch} onValueChange={(value) => handleChange("branch", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.branch ? "border-destructive" : ""}>
                     <SelectValue placeholder={t('booking.selectBranch')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -81,13 +137,14 @@ const Booking = () => {
                     <SelectItem value="damansara">Damansara</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.branch && <p className="text-sm text-destructive">{errors.branch}</p>}
               </div>
 
               {/* Doctor Selection */}
               <div className="space-y-2">
                 <Label htmlFor="doctor">{t('booking.doctor')} *</Label>
                 <Select value={formData.doctor} onValueChange={(value) => handleChange("doctor", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.doctor ? "border-destructive" : ""}>
                     <SelectValue placeholder={t('booking.selectDoctor')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -96,13 +153,14 @@ const Booking = () => {
                     <SelectItem value="any">Any Available</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.doctor && <p className="text-sm text-destructive">{errors.doctor}</p>}
               </div>
 
               {/* Service Selection */}
               <div className="space-y-2">
                 <Label htmlFor="service">{t('booking.service')} *</Label>
                 <Select value={formData.service} onValueChange={(value) => handleChange("service", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.service ? "border-destructive" : ""}>
                     <SelectValue placeholder={t('booking.selectService')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -111,6 +169,7 @@ const Booking = () => {
                     <SelectItem value="consultation">Medical Consultation</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.service && <p className="text-sm text-destructive">{errors.service}</p>}
               </div>
 
               {/* Date Selection */}
@@ -122,7 +181,8 @@ const Booking = () => {
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
+                        !date && "text-muted-foreground",
+                        errors.date && "border-destructive"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -140,13 +200,14 @@ const Booking = () => {
                     />
                   </PopoverContent>
                 </Popover>
+                {errors.date && <p className="text-sm text-destructive">{errors.date}</p>}
               </div>
 
               {/* Time Selection */}
               <div className="space-y-2 md:col-span-2">
               <Label htmlFor="time">{t('booking.time')} *</Label>
               <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
-                <SelectTrigger>
+                <SelectTrigger className={errors.time ? "border-destructive" : ""}>
                   <SelectValue placeholder={t('booking.selectTime')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -159,6 +220,7 @@ const Booking = () => {
                     <SelectItem value="17:00">5:00 PM</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.time && <p className="text-sm text-destructive">{errors.time}</p>}
               </div>
             </div>
 
@@ -172,8 +234,10 @@ const Booking = () => {
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
+                    className={errors.name ? "border-destructive" : ""}
                     required
                   />
+                  {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -183,8 +247,10 @@ const Booking = () => {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
+                    className={errors.phone ? "border-destructive" : ""}
                     required
                   />
+                  {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
@@ -194,14 +260,16 @@ const Booking = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
+                    className={errors.email ? "border-destructive" : ""}
                     required
                   />
+                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full">
-              {t('booking.submit')}
+            <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Booking..." : t('booking.submit')}
             </Button>
 
             <p className="text-sm text-muted-foreground text-center">

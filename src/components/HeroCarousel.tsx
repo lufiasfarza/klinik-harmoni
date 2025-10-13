@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import LazyImage from "@/components/LazyImage";
 import promoVaccines from "@/assets/promo-vaccines.jpg";
 import promoHealthCheck from "@/assets/promo-health-check.jpg";
 import promoPhysio from "@/assets/promo-physio.jpg";
@@ -83,7 +84,7 @@ const HeroCarousel = () => {
             }`}
           >
             {/* Background Image */}
-            <img
+            <LazyImage
               src={slide.image}
               alt={slide.title}
               className="w-full h-full object-cover"
