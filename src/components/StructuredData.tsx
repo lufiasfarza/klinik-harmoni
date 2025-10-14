@@ -12,13 +12,13 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
         return {
           "@context": "https://schema.org",
           "@type": "MedicalBusiness",
-          "name": "Elite Wellness",
+          "name": "Klinik Harmoni",
           "description": "Professional healthcare services across Malaysia with experienced medical professionals and modern facilities.",
-          "url": "https://elitewellness.com",
-          "logo": "https://elitewellness.com/logo.png",
-          "image": "https://elitewellness.com/hero-image.jpg",
+          "url": "https://klinikharmoni.my",
+          "logo": "https://klinikharmoni.my/logo.png",
+          "image": "https://klinikharmoni.my/hero-image.jpg",
           "telephone": "+60 3-1234 5678",
-          "email": "info@elitewellness.com",
+          "email": "info@klinikharmoni.my",
           "address": {
             "@type": "PostalAddress",
             "addressCountry": "MY",

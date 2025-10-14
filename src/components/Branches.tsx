@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Phone, Clock, Search, Navigation, Map } from "lucide-react";
+import { MapPin, Phone, Clock, Search, Navigation, Map, Loader2 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { apiService, Branch as ApiBranch } from "@/services/api";
+import { toast } from "sonner";
 
 // Import clinic photos
 import clinicKLCentral from "@/assets/clinic-kl-central.jpg";
@@ -37,25 +39,22 @@ import doctorFarid from "@/assets/doctor-farid.jpg";
 import doctorCatherine from "@/assets/doctor-catherine.jpg";
 import doctorMarcus from "@/assets/doctor-marcus.jpg";
 
-interface Branch {
-  id: number;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  phone: string;
-  whatsapp: string;
-  hours: {
+interface Branch extends ApiBranch {
+  // Extended fields for UI
+  city?: string;
+  state?: string;
+  whatsapp?: string;
+  hours?: {
     weekday: string;
     weekend: string;
   };
-  mapUrl: string;
-  wazeUrl: string;
-  doctor: {
+  mapUrl?: string;
+  wazeUrl?: string;
+  doctor?: {
     name: string;
     photo: string;
   };
-  clinicPhoto: string;
+  clinicPhoto?: string;
 }
 
 const branchesData: Branch[] = [
@@ -327,24 +326,95 @@ const Branches = () => {
   const [selectedState, setSelectedState] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedDoctor, setSelectedDoctor] = useState("all");
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch branches from API
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching branches from API...');
+        const response = await apiService.getBranches();
+        console.log('API Response:', response);
+        
+        if (response.success && response.data) {
+          // Transform API data to include UI-specific fields
+          const transformedBranches: Branch[] = response.data.map((apiBranch, index) => {
+            // Map clinic photos based on branch name
+            const clinicPhotos = [
+              clinicKLCentral, clinicPJ, clinicBangsar, 
+              clinicMontKiara, clinicSubang, clinicDamansara,
+              clinicShahAlam, clinicJB, clinicPenang, 
+              clinicIpoh, clinicMelaka, clinicKK, clinicKuching
+            ];
+            
+            // Map doctor photos
+            const doctorPhotos = [
+              doctorSarah, doctorAhmad, doctorMei, doctorRaj, doctorLisa
+            ];
+            
+            const doctorNames = [
+              "Dr. Sarah Lim", "Dr. Ahmad Razak", "Dr. Mei Chen", 
+              "Dr. Raj Kumar", "Dr. Lisa Wong"
+            ];
+
+            return {
+              ...apiBranch,
+              city: apiBranch.name.split(' ').pop() || '',
+              state: apiBranch.name.includes('KL') || apiBranch.name.includes('Bangsar') || apiBranch.name.includes('Mont Kiara') ? 'Kuala Lumpur' : 'Selangor',
+              whatsapp: apiBranch.phone.replace(/\D/g, ''),
+              hours: {
+                weekday: apiBranch.operating_hours.split(',')[0] || "Mon-Fri: 9:00 AM - 8:00 PM",
+                weekend: apiBranch.operating_hours.split(',')[1] || "Sat-Sun: 10:00 AM - 6:00 PM"
+              },
+              mapUrl: `https://maps.google.com/?q=${encodeURIComponent(apiBranch.address)}`,
+              wazeUrl: `https://waze.com/ul?q=${encodeURIComponent(apiBranch.address)}`,
+              doctor: {
+                name: doctorNames[index % doctorNames.length],
+                photo: doctorPhotos[index % doctorPhotos.length]
+              },
+              clinicPhoto: clinicPhotos[index % clinicPhotos.length]
+            };
+          });
+          
+          console.log('Transformed branches:', transformedBranches);
+          setBranches(transformedBranches);
+        } else {
+          console.error('API Error:', response);
+          setError('Failed to load branches');
+          toast.error('Failed to load branches data');
+        }
+      } catch (err) {
+        console.error('Network Error:', err);
+        setError('Network error');
+        toast.error('Network error while loading branches');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBranches();
+  }, []);
 
   // Get unique values for filters
-  const states = ["all", ...Array.from(new Set(branchesData.map(b => b.state)))];
-  const cities = ["all", ...Array.from(new Set(branchesData.map(b => b.city)))];
-  const doctors = ["all", ...Array.from(new Set(branchesData.map(b => b.doctor.name)))];
+  const states = ["all", ...Array.from(new Set(branches.map(b => b.state).filter(Boolean)))];
+  const cities = ["all", ...Array.from(new Set(branches.map(b => b.city).filter(Boolean)))];
+  const doctors = ["all", ...Array.from(new Set(branches.map(b => b.doctor?.name).filter(Boolean)))];
 
-  const filteredBranches = branchesData.filter(branch => {
+  const filteredBranches = branches.filter(branch => {
     const query = searchQuery.toLowerCase();
     const matchesSearch = 
       branch.name.toLowerCase().includes(query) ||
-      branch.city.toLowerCase().includes(query) ||
-      branch.state.toLowerCase().includes(query) ||
-      branch.doctor.name.toLowerCase().includes(query) ||
+      (branch.city && branch.city.toLowerCase().includes(query)) ||
+      (branch.state && branch.state.toLowerCase().includes(query)) ||
+      (branch.doctor?.name && branch.doctor.name.toLowerCase().includes(query)) ||
       branch.address.toLowerCase().includes(query);
     
     const matchesState = selectedState === "all" || branch.state === selectedState;
     const matchesCity = selectedCity === "all" || branch.city === selectedCity;
-    const matchesDoctor = selectedDoctor === "all" || branch.doctor.name === selectedDoctor;
+    const matchesDoctor = selectedDoctor === "all" || branch.doctor?.name === selectedDoctor;
     
     return matchesSearch && matchesState && matchesCity && matchesDoctor;
   });
@@ -428,9 +498,28 @@ const Branches = () => {
           </p>
         )}
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Loading branches...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-destructive mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        )}
+
         {/* Branches Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredBranches.map((branch, index) => (
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredBranches.map((branch, index) => (
             <Card 
               key={branch.id}
               className="overflow-hidden hover-lift border-0 shadow-card bg-card"
@@ -546,10 +635,11 @@ const Branches = () => {
               </div>
             </Card>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* No results message */}
-        {filteredBranches.length === 0 && (
+        {!loading && !error && filteredBranches.length === 0 && (
           <div className="text-center py-16 animate-fade-in">
             <MapPin className="h-16 w-16 text-muted-foreground/40 mx-auto mb-4" />
             <p className="text-xl text-muted-foreground">

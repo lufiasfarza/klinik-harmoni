@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { apiService, Service } from "@/services/api";
 
 interface MobileBookingFlowProps {
   onComplete: (bookingData: any) => void;
@@ -23,6 +25,8 @@ interface MobileBookingFlowProps {
 
 const MobileBookingFlow = ({ onComplete, onClose }: MobileBookingFlowProps) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [bookingData, setBookingData] = useState({
     branch: "",
     service: "",
@@ -32,6 +36,26 @@ const MobileBookingFlow = ({ onComplete, onClose }: MobileBookingFlowProps) => {
     phone: "",
     email: "",
   });
+
+  // Fetch services from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const response = await apiService.getServices();
+        if (response.success && response.data) {
+          setServices(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error);
+        toast.error('Failed to load services');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const steps = [
     { id: 1, title: "Location", icon: MapPin },
@@ -108,36 +132,38 @@ const MobileBookingFlow = ({ onComplete, onClose }: MobileBookingFlowProps) => {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Select Service</h3>
-            <div className="space-y-2">
-              {[
-                { name: "General Consultation", duration: "30 min", price: "RM 50" },
-                { name: "Physiotherapy", duration: "45 min", price: "RM 80" },
-                { name: "Therapeutic Massage", duration: "60 min", price: "RM 120" },
-                { name: "Health Screening", duration: "90 min", price: "RM 150" },
-              ].map((service) => (
-                <Card
-                  key={service.name}
-                  className={cn(
-                    "p-4 cursor-pointer transition-all",
-                    bookingData.service === service.name ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
-                  )}
-                  onClick={() => setBookingData(prev => ({ ...prev, service: service.name }))}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{service.name}</p>
-                      <p className="text-sm text-muted-foreground">{service.duration}</p>
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">Loading services...</span>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {services.map((service) => (
+                  <Card
+                    key={service.id}
+                    className={cn(
+                      "p-4 cursor-pointer transition-all",
+                      bookingData.service === service.name ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
+                    )}
+                    onClick={() => setBookingData(prev => ({ ...prev, service: service.name }))}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{service.name}</p>
+                        <p className="text-sm text-muted-foreground">{service.duration_minutes} min</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-primary">{service.price_range_display}</p>
+                        {bookingData.service === service.name && (
+                          <CheckCircle className="h-4 w-4 text-primary mt-1" />
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-primary">{service.price}</p>
-                      {bookingData.service === service.name && (
-                        <CheckCircle className="h-4 w-4 text-primary mt-1" />
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         );
 

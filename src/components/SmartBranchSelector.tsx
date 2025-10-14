@@ -4,17 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Navigation, Clock, Phone, Search } from "lucide-react";
+import { MapPin, Navigation, Clock, Phone, Search, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { apiService, Branch as ApiBranch } from "@/services/api";
+import { toast } from "sonner";
 
-interface Branch {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  operatingHours: string;
+interface Branch extends ApiBranch {
   distance?: number;
-  image: string;
   services: string[];
   isOpen: boolean;
 }
@@ -29,40 +25,41 @@ const SmartBranchSelector = ({ onBranchSelect, selectedBranch }: SmartBranchSele
   const [searchTerm, setSearchTerm] = useState("");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [sortBy, setSortBy] = useState<'distance' | 'name'>('distance');
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const branches: Branch[] = [
-    {
-      id: "kl-central",
-      name: "KL Central",
-      address: "Level 2, KL Sentral, Kuala Lumpur",
-      phone: "+60 3-2274 1000",
-      operatingHours: "Mon-Fri: 8AM-8PM, Sat: 8AM-6PM",
-      image: "/clinic-kl-central.jpg",
-      services: ["General Consultation", "Physiotherapy", "Vaccination"],
-      isOpen: true,
-    },
-    {
-      id: "petaling-jaya",
-      name: "Petaling Jaya",
-      address: "SS2, Petaling Jaya, Selangor",
-      phone: "+60 3-7956 2000",
-      operatingHours: "Mon-Fri: 8AM-8PM, Sat: 8AM-6PM",
-      image: "/clinic-pj.jpg",
-      services: ["Physiotherapy", "Massage", "Health Check"],
-      isOpen: true,
-    },
-    {
-      id: "bangsar",
-      name: "Bangsar",
-      address: "Bangsar Shopping Centre, Kuala Lumpur",
-      phone: "+60 3-2282 3000",
-      operatingHours: "Mon-Fri: 9AM-7PM, Sat: 9AM-5PM",
-      image: "/clinic-bangsar.jpg",
-      services: ["General Consultation", "Physiotherapy"],
-      isOpen: false,
-    },
-    // Add more branches...
-  ];
+  // Fetch branches from API
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching branches for SmartBranchSelector...');
+        const response = await apiService.getBranches();
+        console.log('SmartBranchSelector API Response:', response);
+        
+        if (response.success && response.data) {
+          const transformedBranches: Branch[] = response.data.map((apiBranch) => ({
+            ...apiBranch,
+            services: ["General Consultation", "Physiotherapy", "Vaccination", "Health Screening"], // Default services
+            isOpen: true, // Default to open
+          }));
+          
+          console.log('Transformed branches for SmartBranchSelector:', transformedBranches);
+          setBranches(transformedBranches);
+        } else {
+          console.error('Failed to load branches:', response);
+          toast.error('Failed to load branches');
+        }
+      } catch (err) {
+        console.error('Error fetching branches:', err);
+        toast.error('Failed to load branches');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBranches();
+  }, []);
 
   useEffect(() => {
     // Get user location for distance calculation
@@ -108,6 +105,15 @@ const SmartBranchSelector = ({ onBranchSelect, selectedBranch }: SmartBranchSele
     
     return false;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading branches...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

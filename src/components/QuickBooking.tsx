@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,11 +7,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
 import { format } from "date-fns";
-import { CalendarIcon, Phone, MapPin, Stethoscope, X, ChevronRight, ChevronLeft, Clock, User } from "lucide-react";
+import { CalendarIcon, Phone, MapPin, Stethoscope, X, ChevronRight, ChevronLeft, Clock, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
+import { apiService, Branch, Service } from "@/services/api";
 import SmartBranchSelector from "./SmartBranchSelector";
 import AvailabilityChecker from "./AvailabilityChecker";
 import BookingConfirmation from "./BookingConfirmation";
@@ -46,6 +47,39 @@ const QuickBooking = ({ open, onOpenChange }: QuickBookingProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingId, setBookingId] = useState<string>("");
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch branches and services from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching branches and services for quick booking...');
+        
+        const [branchesResponse, servicesResponse] = await Promise.all([
+          apiService.getBranches(),
+          apiService.getServices()
+        ]);
+        
+        if (branchesResponse.success && branchesResponse.data) {
+          setBranches(branchesResponse.data);
+        }
+        
+        if (servicesResponse.success && servicesResponse.data) {
+          setServices(servicesResponse.data);
+        }
+      } catch (err) {
+        console.error('Error fetching quick booking data:', err);
+        toast.error('Failed to load booking data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const totalSteps = 4;
 

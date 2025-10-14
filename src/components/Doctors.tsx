@@ -1,59 +1,89 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin, Clock, ArrowRight } from "lucide-react";
+import { MapPin, Clock, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { apiService, Doctor as ApiDoctor } from "@/services/api";
+import { toast } from "sonner";
 import doctorSarah from "@/assets/doctor-sarah.jpg";
 import doctorAhmad from "@/assets/doctor-ahmad.jpg";
 import doctorMei from "@/assets/doctor-mei.jpg";
+import doctorRaj from "@/assets/doctor-raj.jpg";
+import doctorLisa from "@/assets/doctor-lisa.jpg";
+import doctorDaniel from "@/assets/doctor-daniel.jpg";
+import doctorCatherine from "@/assets/doctor-catherine.jpg";
+import doctorMarcus from "@/assets/doctor-marcus.jpg";
+import doctorPriya from "@/assets/doctor-priya.jpg";
+import doctorFarid from "@/assets/doctor-farid.jpg";
 
-interface Doctor {
-  id: string;
-  name: string;
-  role: string;
-  specialization: string;
+interface Doctor extends ApiDoctor {
+  role?: string;
   image: string;
   branch: string;
   schedule: string;
   bio: string;
 }
 
-const doctorsData: Doctor[] = [
-  {
-    id: "sarah-lim",
-    name: "Dr. Sarah Lim",
-    role: "Medical Director",
-    specialization: "General Practice & Family Medicine",
-    image: doctorSarah,
-    branch: "KL Central",
-    schedule: "Mon-Sat: 9:00 AM - 8:00 PM",
-    bio: "15+ years of experience in family medicine and preventive care."
-  },
-  {
-    id: "ahmad-razak",
-    name: "Dr. Ahmad Razak",
-    role: "Senior General Practitioner",
-    specialization: "Internal Medicine",
-    image: doctorAhmad,
-    branch: "Petaling Jaya",
-    schedule: "Mon-Sat: 9:00 AM - 8:00 PM",
-    bio: "Specializing in chronic disease management and holistic care."
-  },
-  {
-    id: "mei-chen",
-    name: "Dr. Mei Chen",
-    role: "Consultant Physician",
-    specialization: "Women's Health & Pediatrics",
-    image: doctorMei,
-    branch: "Bangsar",
-    schedule: "Mon-Fri: 10:00 AM - 7:00 PM",
-    bio: "Dedicated to compassionate care for mothers and children."
-  }
-];
-
 const Doctors = () => {
   const navigate = useNavigate();
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch doctors from API
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching doctors from API...');
+        const response = await apiService.getDoctors();
+        console.log('Doctors API Response:', response);
+        
+        if (response.success && response.data) {
+          // Transform API data to include UI-specific fields
+          const transformedDoctors: Doctor[] = response.data.map((apiDoctor, index) => {
+            // Map doctor photos
+            const doctorPhotos = [
+              doctorSarah, doctorAhmad, doctorMei, doctorRaj, doctorLisa,
+              doctorDaniel, doctorCatherine, doctorMarcus, doctorPriya, doctorFarid
+            ];
+            
+            const roles = [
+              "Medical Director", "Senior General Practitioner", "Consultant Physician",
+              "Specialist Doctor", "Family Medicine Doctor", "Internal Medicine Specialist",
+              "Pediatric Specialist", "Orthopedic Specialist", "Cardiology Specialist", "General Practitioner"
+            ];
+
+            return {
+              ...apiDoctor,
+              role: roles[index % roles.length],
+              image: doctorPhotos[index % doctorPhotos.length],
+              branch: apiDoctor.branch?.name || 'Klinik Harmoni',
+              schedule: apiDoctor.schedule || "Mon-Fri: 9:00 AM - 5:00 PM",
+              bio: apiDoctor.bio || "Experienced healthcare professional dedicated to patient care."
+            };
+          });
+          
+          console.log('Transformed doctors:', transformedDoctors);
+          setDoctors(transformedDoctors);
+        } else {
+          console.error('Doctors API Error:', response);
+          setError('Failed to load doctors');
+          toast.error('Failed to load doctors data');
+        }
+      } catch (err) {
+        console.error('Doctors Network Error:', err);
+        setError('Network error');
+        toast.error('Network error while loading doctors');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
   
   return (
     <section id="doctors" className="py-24 bg-background">
@@ -67,8 +97,28 @@ const Doctors = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {doctorsData.map((doctor, index) => (
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Loading doctors...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-destructive mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        )}
+
+        {/* Doctors Grid */}
+        {!loading && !error && (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {doctors.map((doctor, index) => (
             <Card 
               key={doctor.id}
               className="overflow-hidden hover-lift border-0 shadow-card group cursor-pointer transition-all"
@@ -121,7 +171,8 @@ const Doctors = () => {
               </div>
             </Card>
           ))}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

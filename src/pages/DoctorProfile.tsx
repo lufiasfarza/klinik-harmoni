@@ -1,11 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin, Clock, Award, GraduationCap, ArrowLeft } from "lucide-react";
+import { MapPin, Clock, Award, GraduationCap, ArrowLeft, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { apiService, Doctor as ApiDoctor } from "@/services/api";
+import { toast } from "sonner";
 
 // Import doctor photos
 import doctorSarah from "@/assets/doctor-sarah.jpg";
@@ -21,95 +24,110 @@ import doctorFarid from "@/assets/doctor-farid.jpg";
 import doctorCatherine from "@/assets/doctor-catherine.jpg";
 import doctorMarcus from "@/assets/doctor-marcus.jpg";
 
-interface DoctorDetails {
-  id: string;
-  name: string;
-  role: string;
-  specialization: string;
+interface DoctorDetails extends ApiDoctor {
+  role?: string;
   image: string;
   branch: string;
   schedule: string;
   bio: string;
-  experience: string;
-  education: string[];
-  certifications: string[];
-  languages: string[];
+  experience?: string;
+  education?: string[];
+  certifications?: string[];
+  languages?: string[];
 }
-
-const doctorsDatabase: Record<string, DoctorDetails> = {
-  "sarah-lim": {
-    id: "sarah-lim",
-    name: "Dr. Sarah Lim",
-    role: "Medical Director",
-    specialization: "General Practice & Family Medicine",
-    image: doctorSarah,
-    branch: "KL Central",
-    schedule: "Mon-Sat: 9:00 AM - 8:00 PM",
-    bio: "Dr. Sarah Lim is a highly experienced general practitioner with over 15 years of experience in family medicine. She is passionate about preventive care and patient education, ensuring her patients receive comprehensive healthcare tailored to their needs.",
-    experience: "15+ years",
-    education: [
-      "MBBS - University of Malaya",
-      "Master of Family Medicine - Universiti Kebangsaan Malaysia"
-    ],
-    certifications: [
-      "Fellow, Academy of Family Physicians of Malaysia",
-      "Certified in Aesthetic Medicine"
-    ],
-    languages: ["English", "Bahasa Malaysia", "Mandarin", "Cantonese"]
-  },
-  "ahmad-razak": {
-    id: "ahmad-razak",
-    name: "Dr. Ahmad Razak",
-    role: "Senior General Practitioner",
-    specialization: "Internal Medicine",
-    image: doctorAhmad,
-    branch: "Petaling Jaya",
-    schedule: "Mon-Sat: 9:00 AM - 8:00 PM",
-    bio: "Dr. Ahmad Razak specializes in internal medicine with a focus on chronic disease management. His approach emphasizes holistic care and building long-term relationships with patients.",
-    experience: "12+ years",
-    education: [
-      "MBBS - International Islamic University Malaysia",
-      "Postgraduate Diploma in Internal Medicine"
-    ],
-    certifications: [
-      "Member, Malaysian Medical Association",
-      "Certified Diabetes Educator"
-    ],
-    languages: ["English", "Bahasa Malaysia"]
-  },
-  "mei-chen": {
-    id: "mei-chen",
-    name: "Dr. Mei Chen",
-    role: "Consultant Physician",
-    specialization: "Women's Health & Pediatrics",
-    image: doctorMei,
-    branch: "Bangsar",
-    schedule: "Mon-Fri: 10:00 AM - 7:00 PM",
-    bio: "Dr. Mei Chen is dedicated to women's health and pediatric care. With her gentle approach and extensive experience, she provides compassionate care for mothers and children.",
-    experience: "10+ years",
-    education: [
-      "MBBS - National University of Singapore",
-      "Master in Obstetrics & Gynaecology"
-    ],
-    certifications: [
-      "Fellow, Royal College of Obstetricians and Gynaecologists",
-      "Certified Lactation Consultant"
-    ],
-    languages: ["English", "Mandarin", "Bahasa Malaysia"]
-  }
-};
 
 const DoctorProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
-  const doctor = id ? doctorsDatabase[id] : null;
+  const [doctor, setDoctor] = useState<DoctorDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!doctor) {
+  // Fetch doctor data from API
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      if (!id) {
+        setError('Doctor ID not provided');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        console.log('Fetching doctor with ID:', id);
+        const response = await apiService.getDoctor(id);
+        console.log('Doctor API Response:', response);
+        
+        if (response.success && response.data) {
+          // Map doctor photos
+          const doctorPhotos = [
+            doctorSarah, doctorAhmad, doctorMei, doctorRaj, doctorLisa,
+            doctorDaniel, doctorCatherine, doctorMarcus, doctorPriya, doctorFarid
+          ];
+          
+          const roles = [
+            "Medical Director", "Senior General Practitioner", "Consultant Physician",
+            "Specialist Doctor", "Family Medicine Doctor", "Internal Medicine Specialist",
+            "Pediatric Specialist", "Orthopedic Specialist", "Cardiology Specialist", "General Practitioner"
+          ];
+
+          const doctorDetails: DoctorDetails = {
+            ...response.data,
+            role: roles[response.data.id % roles.length],
+            image: doctorPhotos[response.data.id % doctorPhotos.length],
+            branch: response.data.branch?.name || 'Klinik Harmoni',
+            schedule: response.data.schedule || "Mon-Fri: 9:00 AM - 5:00 PM",
+            bio: response.data.bio || "Experienced healthcare professional dedicated to patient care.",
+            experience: "10+ years", // Default experience
+            education: [
+              "MBBS - University of Malaya",
+              "Master of Medicine - Universiti Kebangsaan Malaysia"
+            ],
+            certifications: [
+              "Fellow, Malaysian Medical Association",
+              "Certified Healthcare Professional"
+            ],
+            languages: ["English", "Bahasa Malaysia"]
+          };
+          
+          console.log('Transformed doctor:', doctorDetails);
+          setDoctor(doctorDetails);
+        } else {
+          console.error('Doctor API Error:', response);
+          setError('Doctor not found');
+          toast.error('Doctor not found');
+        }
+      } catch (err) {
+        console.error('Doctor Network Error:', err);
+        setError('Network error');
+        toast.error('Network error while loading doctor');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctor();
+  }, [id]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <h1 className="text-2xl font-heading font-bold mb-4">Loading Doctor Profile...</h1>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !doctor) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-heading font-bold mb-4">Doctor Not Found</h1>
+          <p className="text-muted-foreground mb-4">{error || 'The requested doctor could not be found.'}</p>
           <Button onClick={() => navigate("/")}>Return Home</Button>
         </div>
       </div>

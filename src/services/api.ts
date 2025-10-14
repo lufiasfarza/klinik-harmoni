@@ -1,25 +1,27 @@
-// API Service Layer untuk Elite Wellness
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// API Service Layer untuk Klinik Harmoni
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
 
 export interface BookingData {
-  branch: string;
-  doctor: string;
-  service: string;
-  date: Date;
-  time: string;
-  name: string;
-  phone: string;
-  email: string;
+  branch_id: number;
+  doctor_id?: number;
+  service_id: number;
+  appointment_date: string; // YYYY-MM-DD format
+  appointment_time: string;
+  patient_name: string;
+  patient_phone: string;
+  patient_email: string;
 }
 
 export interface Branch {
-  id: string;
+  id: number;
   name: string;
   address: string;
   phone: string;
-  operatingHours: string;
-  image: string;
-  doctors: Doctor[];
+  operating_hours: string;
+  image?: string;
+  latitude?: number;
+  longitude?: number;
+  is_active: boolean;
 }
 
 export interface Doctor {
@@ -33,12 +35,24 @@ export interface Doctor {
 }
 
 export interface Service {
-  id: string;
+  id: number;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  duration: number;
+  min_price: number;
+  max_price: number;
+  price_range_display: string;
+  duration_minutes: number;
   category: string;
+  is_active: boolean;
+  branches_offering_service: {
+    id: number;
+    name: string;
+    address: string;
+    phone: string;
+    price: number;
+    operating_hours: string;
+  }[];
 }
 
 export interface ApiResponse<T> {
@@ -54,7 +68,10 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const url = `${API_BASE_URL}${endpoint}`;
+      console.log('API Request:', url);
+      
+      const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -63,7 +80,9 @@ class ApiService {
         ...options,
       });
 
+      console.log('API Response status:', response.status);
       const data = await response.json();
+      console.log('API Response data:', data);
 
       if (!response.ok) {
         return {
@@ -88,13 +107,10 @@ class ApiService {
   }
 
   // Booking API
-  async createBooking(bookingData: BookingData): Promise<ApiResponse<{ id: string }>> {
+  async createBooking(bookingData: BookingData): Promise<ApiResponse<{ id: number; booking_id: string }>> {
     return this.request('/bookings', {
       method: 'POST',
-      body: JSON.stringify({
-        ...bookingData,
-        date: bookingData.date.toISOString().split('T')[0],
-      }),
+      body: JSON.stringify(bookingData),
     });
   }
 
@@ -135,11 +151,10 @@ class ApiService {
 
   // Availability API
   async getAvailableSlots(
-    branchId: string,
-    doctorId: string,
+    branchId: number,
     date: string
   ): Promise<ApiResponse<string[]>> {
-    return this.request(`/availability?branch=${branchId}&doctor=${doctorId}&date=${date}`);
+    return this.request(`/availability?branch=${branchId}&date=${date}`);
   }
 
   // Contact API
@@ -179,12 +194,12 @@ export const validateEmail = (email: string): boolean => {
 };
 
 export const validatePhoneNumber = (phone: string): boolean => {
-  const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,15}$/;
+  const phoneRegex = /^[\+]?[0-9\s\-()]{10,15}$/;
   return phoneRegex.test(phone);
 };
 
 // Error handling utilities
-export const handleApiError = (error: ApiResponse<any>): string => {
+export const handleApiError = (error: ApiResponse<unknown>): string => {
   if (error.errors) {
     const firstError = Object.values(error.errors)[0];
     return Array.isArray(firstError) ? firstError[0] : firstError;

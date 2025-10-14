@@ -9,8 +9,8 @@
   },
   "hero": {
     "badge": "Award-Winning Healthcare Excellence",
-    "title": "Your Journey to",
-    "titleHighlight": "Complete Wellness",
+    "title": "Klinik Harmoni -",
+    "titleHighlight": "Healthcare Excellence",
     "description": "Experience world-class healthcare across 13 branches nationwide. Professional physiotherapy, holistic treatments, and compassionate care tailored to your needs.",
     "bookAppointment": "Book Appointment",
     "findBranch": "Find a Branch",
@@ -25,8 +25,16 @@
     "focusDescription": "Specialized care for specific health concerns",
     "learnMore": "Learn More",
     "price": "Price",
+    "priceRange": "Price Range",
+    "duration": "Duration",
     "bookNow": "Book Now",
-    "close": "Close"
+    "bookAppointment": "Book Appointment",
+    "close": "Close",
+    "whatsIncluded": "What's Included:",
+    "availableAt": "Available at",
+    "branches": "branches",
+    "branch": "branch",
+    "variesByLocation": "Varies by branch location"
   },
   "doctors": {
     "title": "Our Medical Professionals",
@@ -92,9 +100,9 @@
     "contact": "Contact Us",
     "address": "Kuala Lumpur, Malaysia",
     "phone": "+60 3-1234 5678",
-    "email": "info@elitewellness.com",
+    "email": "info@klinikharmoni.my",
     "followUs": "Follow Us",
-    "rights": "Elite Wellness. All rights reserved.",
+    "rights": "Klinik Harmoni. All rights reserved.",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "pdpa": "PDPA Compliance"
