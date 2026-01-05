@@ -360,17 +360,44 @@ const Branches = () => {
               "Dr. Raj Kumar", "Dr. Lisa Wong"
             ];
 
+            // Parse operating hours from object format
+            const parseHours = (hours: any) => {
+              if (!hours || typeof hours !== 'object') {
+                return { weekday: "24 Jam", weekend: "24 Jam" };
+              }
+              try {
+                const monday = typeof hours.monday === 'string'
+                  ? JSON.parse(hours.monday)
+                  : hours.monday;
+                const saturday = typeof hours.saturday === 'string'
+                  ? JSON.parse(hours.saturday)
+                  : hours.saturday;
+
+                const weekdayHours = monday?.is_open
+                  ? `${monday.open} - ${monday.close}`
+                  : "Tutup";
+                const weekendHours = saturday?.is_open
+                  ? `${saturday.open} - ${saturday.close}`
+                  : "Tutup";
+
+                return {
+                  weekday: `Mon-Fri: ${weekdayHours}`,
+                  weekend: `Sat-Sun: ${weekendHours}`
+                };
+              } catch {
+                return { weekday: "24 Jam", weekend: "24 Jam" };
+              }
+            };
+
             return {
               ...apiBranch,
-              city: apiBranch.name.split(' ').pop() || '',
-              state: apiBranch.name.includes('KL') || apiBranch.name.includes('Bangsar') || apiBranch.name.includes('Mont Kiara') ? 'Kuala Lumpur' : 'Selangor',
-              whatsapp: apiBranch.phone.replace(/\D/g, ''),
-              hours: {
-                weekday: apiBranch.operating_hours.split(',')[0] || "Mon-Fri: 9:00 AM - 8:00 PM",
-                weekend: apiBranch.operating_hours.split(',')[1] || "Sat-Sun: 10:00 AM - 6:00 PM"
-              },
-              mapUrl: `https://maps.google.com/?q=${encodeURIComponent(apiBranch.address)}`,
-              wazeUrl: `https://waze.com/ul?q=${encodeURIComponent(apiBranch.address)}`,
+              phone: apiBranch.phone || '',
+              city: apiBranch.city || apiBranch.name.split(' ').pop() || '',
+              state: apiBranch.state || (apiBranch.name.includes('KL') || apiBranch.name.includes('Bangsar') || apiBranch.name.includes('Mont Kiara') ? 'Kuala Lumpur' : 'Selangor'),
+              whatsapp: (apiBranch.whatsapp || apiBranch.phone || '').replace(/\D/g, ''),
+              hours: parseHours(apiBranch.operating_hours),
+              mapUrl: apiBranch.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(apiBranch.address || '')}`,
+              wazeUrl: apiBranch.waze_url || `https://waze.com/ul?q=${encodeURIComponent(apiBranch.address || '')}`,
               doctor: {
                 name: doctorNames[index % doctorNames.length],
                 photo: doctorPhotos[index % doctorPhotos.length]
