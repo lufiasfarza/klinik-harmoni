@@ -25,20 +25,6 @@ import clinicMelaka from "@/assets/clinic-melaka.jpg";
 import clinicKK from "@/assets/clinic-kk.jpg";
 import clinicKuching from "@/assets/clinic-kuching.jpg";
 
-// Import doctor photos
-import doctorSarah from "@/assets/doctor-sarah.jpg";
-import doctorAhmad from "@/assets/doctor-ahmad.jpg";
-import doctorMei from "@/assets/doctor-mei.jpg";
-import doctorRaj from "@/assets/doctor-raj.jpg";
-import doctorLisa from "@/assets/doctor-lisa.jpg";
-import doctorDaniel from "@/assets/doctor-daniel.jpg";
-import doctorAminah from "@/assets/doctor-aminah.jpg";
-import doctorWong from "@/assets/doctor-wong.jpg";
-import doctorPriya from "@/assets/doctor-priya.jpg";
-import doctorFarid from "@/assets/doctor-farid.jpg";
-import doctorCatherine from "@/assets/doctor-catherine.jpg";
-import doctorMarcus from "@/assets/doctor-marcus.jpg";
-
 interface Branch extends ApiBranch {
   // Extended fields for UI
   city?: string;
@@ -50,282 +36,14 @@ interface Branch extends ApiBranch {
   };
   mapUrl?: string;
   wazeUrl?: string;
-  doctor?: {
-    name: string;
-    photo: string;
-  };
   clinicPhoto?: string;
 }
-
-const branchesData: Branch[] = [
-  {
-    id: 1,
-    name: "Elite Wellness KL Central",
-    address: "Level 5, Pavilion KL, 168 Jalan Bukit Bintang, 55100 Kuala Lumpur",
-    city: "Kuala Lumpur",
-    state: "Kuala Lumpur",
-    phone: "+603-2142 8888",
-    whatsapp: "+60321428888",
-    hours: {
-      weekday: "Mon-Sat: 9:00 AM - 8:00 PM",
-      weekend: "Sun: 10:00 AM - 6:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Pavilion+KL",
-    wazeUrl: "https://waze.com/ul?q=Pavilion+KL",
-    doctor: {
-      name: "Dr. Sarah Lim",
-      photo: doctorSarah
-    },
-    clinicPhoto: clinicKLCentral
-  },
-  {
-    id: 2,
-    name: "Elite Wellness Petaling Jaya",
-    address: "G-03, Jaya One, 72A Jalan Universiti, 46200 Petaling Jaya, Selangor",
-    city: "Petaling Jaya",
-    state: "Selangor",
-    phone: "+603-7932 5555",
-    whatsapp: "+60379325555",
-    hours: {
-      weekday: "Mon-Sat: 9:00 AM - 8:00 PM",
-      weekend: "Sun: Closed"
-    },
-    mapUrl: "https://maps.google.com/?q=Jaya+One+PJ",
-    wazeUrl: "https://waze.com/ul?q=Jaya+One+PJ",
-    doctor: {
-      name: "Dr. Ahmad Razak",
-      photo: doctorAhmad
-    },
-    clinicPhoto: clinicPJ
-  },
-  {
-    id: 3,
-    name: "Elite Wellness Bangsar",
-    address: "Unit 10-1, Bangsar Village II, 2 Jalan Telawi 1, 59100 Bangsar, KL",
-    city: "Bangsar",
-    state: "Kuala Lumpur",
-    phone: "+603-2282 3333",
-    whatsapp: "+60322823333",
-    hours: {
-      weekday: "Mon-Fri: 10:00 AM - 7:00 PM",
-      weekend: "Sat-Sun: 10:00 AM - 6:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Bangsar+Village+II",
-    wazeUrl: "https://waze.com/ul?q=Bangsar+Village+II",
-    doctor: {
-      name: "Dr. Mei Chen",
-      photo: doctorMei
-    },
-    clinicPhoto: clinicBangsar
-  },
-  {
-    id: 4,
-    name: "Elite Wellness Mont Kiara",
-    address: "163 Retail Park, 2 Jalan Kiara, Mont Kiara, 50480 Kuala Lumpur",
-    city: "Mont Kiara",
-    state: "Kuala Lumpur",
-    phone: "+603-6211 7777",
-    whatsapp: "+60362117777",
-    hours: {
-      weekday: "Mon-Sat: 9:00 AM - 9:00 PM",
-      weekend: "Sun: 10:00 AM - 6:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=163+Retail+Park+Mont+Kiara",
-    wazeUrl: "https://waze.com/ul?q=163+Retail+Park+Mont+Kiara",
-    doctor: {
-      name: "Dr. Raj Kumar",
-      photo: doctorRaj
-    },
-    clinicPhoto: clinicMontKiara
-  },
-  {
-    id: 5,
-    name: "Elite Wellness Subang Jaya",
-    address: "LG-15 Empire Shopping Gallery, Jalan SS 16/1, 47500 Subang Jaya",
-    city: "Subang Jaya",
-    state: "Selangor",
-    phone: "+603-5637 4444",
-    whatsapp: "+60356374444",
-    hours: {
-      weekday: "Mon-Sat: 10:00 AM - 9:00 PM",
-      weekend: "Sun: 10:00 AM - 7:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Empire+Shopping+Gallery",
-    wazeUrl: "https://waze.com/ul?q=Empire+Shopping+Gallery",
-    doctor: {
-      name: "Dr. Lisa Tan",
-      photo: doctorLisa
-    },
-    clinicPhoto: clinicSubang
-  },
-  {
-    id: 6,
-    name: "Elite Wellness Damansara",
-    address: "A-G-5, Menara UOA Bangsar, 5 Jalan Bangsar Utama 1, 59000 KL",
-    city: "Damansara",
-    state: "Kuala Lumpur",
-    phone: "+603-2287 1111",
-    whatsapp: "+60322871111",
-    hours: {
-      weekday: "Mon-Fri: 9:00 AM - 7:00 PM",
-      weekend: "Sat: 9:00 AM - 5:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Menara+UOA+Bangsar",
-    wazeUrl: "https://waze.com/ul?q=Menara+UOA+Bangsar",
-    doctor: {
-      name: "Dr. Daniel Ng",
-      photo: doctorDaniel
-    },
-    clinicPhoto: clinicDamansara
-  },
-  {
-    id: 7,
-    name: "Elite Wellness Shah Alam",
-    address: "F-G-01, Plaza Alam Sentral, Jalan Majlis, 40000 Shah Alam, Selangor",
-    city: "Shah Alam",
-    state: "Selangor",
-    phone: "+603-5510 2222",
-    whatsapp: "+60355102222",
-    hours: {
-      weekday: "Mon-Sat: 9:00 AM - 8:00 PM",
-      weekend: "Sun: 10:00 AM - 6:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Plaza+Alam+Sentral+Shah+Alam",
-    wazeUrl: "https://waze.com/ul?q=Plaza+Alam+Sentral+Shah+Alam",
-    doctor: {
-      name: "Dr. Aminah Hassan",
-      photo: doctorAminah
-    },
-    clinicPhoto: clinicShahAlam
-  },
-  {
-    id: 8,
-    name: "Elite Wellness Johor Bahru",
-    address: "L2-23, Paradigm Mall Johor Bahru, Jalan Skudai, 80200 Johor Bahru",
-    city: "Johor Bahru",
-    state: "Johor",
-    phone: "+607-361 9999",
-    whatsapp: "+60736199999",
-    hours: {
-      weekday: "Mon-Sat: 10:00 AM - 9:00 PM",
-      weekend: "Sun: 10:00 AM - 7:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Paradigm+Mall+Johor+Bahru",
-    wazeUrl: "https://waze.com/ul?q=Paradigm+Mall+Johor+Bahru",
-    doctor: {
-      name: "Dr. Wong Wei Jian",
-      photo: doctorWong
-    },
-    clinicPhoto: clinicJB
-  },
-  {
-    id: 9,
-    name: "Elite Wellness Penang",
-    address: "3F-08, Gurney Paragon Mall, Persiaran Gurney, 10250 George Town, Penang",
-    city: "George Town",
-    state: "Penang",
-    phone: "+604-227 6666",
-    whatsapp: "+60422276666",
-    hours: {
-      weekday: "Mon-Sat: 10:00 AM - 8:00 PM",
-      weekend: "Sun: 10:00 AM - 6:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Gurney+Paragon+Mall+Penang",
-    wazeUrl: "https://waze.com/ul?q=Gurney+Paragon+Mall+Penang",
-    doctor: {
-      name: "Dr. Priya Nair",
-      photo: doctorPriya
-    },
-    clinicPhoto: clinicPenang
-  },
-  {
-    id: 10,
-    name: "Elite Wellness Ipoh",
-    address: "G-12, AEON Mall Kinta City, Jalan Sultan Azlan Shah, 31400 Ipoh, Perak",
-    city: "Ipoh",
-    state: "Perak",
-    phone: "+605-312 5555",
-    whatsapp: "+60531255555",
-    hours: {
-      weekday: "Mon-Sat: 10:00 AM - 9:00 PM",
-      weekend: "Sun: 10:00 AM - 7:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=AEON+Mall+Kinta+City+Ipoh",
-    wazeUrl: "https://waze.com/ul?q=AEON+Mall+Kinta+City+Ipoh",
-    doctor: {
-      name: "Dr. Farid Abdullah",
-      photo: doctorFarid
-    },
-    clinicPhoto: clinicIpoh
-  },
-  {
-    id: 11,
-    name: "Elite Wellness Melaka",
-    address: "L2-56, Hatten Square, Jalan Merdeka, 75000 Melaka",
-    city: "Melaka",
-    state: "Melaka",
-    phone: "+606-282 8888",
-    whatsapp: "+60628288888",
-    hours: {
-      weekday: "Mon-Sat: 9:00 AM - 8:00 PM",
-      weekend: "Sun: 10:00 AM - 6:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Hatten+Square+Melaka",
-    wazeUrl: "https://waze.com/ul?q=Hatten+Square+Melaka",
-    doctor: {
-      name: "Dr. Catherine Lee",
-      photo: doctorCatherine
-    },
-    clinicPhoto: clinicMelaka
-  },
-  {
-    id: 12,
-    name: "Elite Wellness Kota Kinabalu",
-    address: "2F-18, Suria Sabah Shopping Mall, 1 Jalan Tun Fuad Stephens, 88000 KK",
-    city: "Kota Kinabalu",
-    state: "Sabah",
-    phone: "+6088-235 7777",
-    whatsapp: "+60882357777",
-    hours: {
-      weekday: "Mon-Sat: 10:00 AM - 8:00 PM",
-      weekend: "Sun: 10:00 AM - 6:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Suria+Sabah+Shopping+Mall",
-    wazeUrl: "https://waze.com/ul?q=Suria+Sabah+Shopping+Mall",
-    doctor: {
-      name: "Dr. Marcus Tan",
-      photo: doctorMarcus
-    },
-    clinicPhoto: clinicKK
-  },
-  {
-    id: 13,
-    name: "Elite Wellness Kuching",
-    address: "G-23, Vivacity Megamall, Jalan Wan Alwi, 93350 Kuching, Sarawak",
-    city: "Kuching",
-    state: "Sarawak",
-    phone: "+6082-414 3333",
-    whatsapp: "+60824143333",
-    hours: {
-      weekday: "Mon-Sat: 10:00 AM - 9:00 PM",
-      weekend: "Sun: 10:00 AM - 7:00 PM"
-    },
-    mapUrl: "https://maps.google.com/?q=Vivacity+Megamall+Kuching",
-    wazeUrl: "https://waze.com/ul?q=Vivacity+Megamall+Kuching",
-    doctor: {
-      name: "Dr. Sarah Lim",
-      photo: doctorSarah
-    },
-    clinicPhoto: clinicKuching
-  }
-];
 
 const Branches = () => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
-  const [selectedDoctor, setSelectedDoctor] = useState("all");
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -350,58 +68,51 @@ const Branches = () => {
               clinicIpoh, clinicMelaka, clinicKK, clinicKuching
             ];
             
-            // Map doctor photos
-            const doctorPhotos = [
-              doctorSarah, doctorAhmad, doctorMei, doctorRaj, doctorLisa
-            ];
-            
-            const doctorNames = [
-              "Dr. Sarah Lim", "Dr. Ahmad Razak", "Dr. Mei Chen", 
-              "Dr. Raj Kumar", "Dr. Lisa Wong"
-            ];
-
             // Parse operating hours from object format
-            const parseHours = (hours: any) => {
+            const parseHours = (hours: ApiBranch["operating_hours"]) => {
               if (!hours || typeof hours !== 'object') {
                 return { weekday: "24 Jam", weekend: "24 Jam" };
               }
-              try {
-                const monday = typeof hours.monday === 'string'
-                  ? JSON.parse(hours.monday)
-                  : hours.monday;
-                const saturday = typeof hours.saturday === 'string'
-                  ? JSON.parse(hours.saturday)
-                  : hours.saturday;
 
-                const weekdayHours = monday?.is_open
-                  ? `${monday.open} - ${monday.close}`
-                  : "Tutup";
-                const weekendHours = saturday?.is_open
-                  ? `${saturday.open} - ${saturday.close}`
-                  : "Tutup";
+              const parseDay = (day: unknown) => {
+                if (!day) return null;
+                if (typeof day === 'string') {
+                  try {
+                    return JSON.parse(day) as { is_open: boolean; open: string; close: string };
+                  } catch {
+                    return null;
+                  }
+                }
+                if (typeof day === 'object') {
+                  return day as { is_open: boolean; open: string; close: string };
+                }
+                return null;
+              };
 
-                return {
-                  weekday: `Mon-Fri: ${weekdayHours}`,
-                  weekend: `Sat-Sun: ${weekendHours}`
-                };
-              } catch {
-                return { weekday: "24 Jam", weekend: "24 Jam" };
-              }
+              const monday = parseDay(hours["monday"]);
+              const saturday = parseDay(hours["saturday"]);
+
+              const weekdayHours = monday?.is_open
+                ? `${monday.open} - ${monday.close}`
+                : "Tutup";
+              const weekendHours = saturday?.is_open
+                ? `${saturday.open} - ${saturday.close}`
+                : "Tutup";
+
+              return {
+                weekday: `Mon-Fri: ${weekdayHours}`,
+                weekend: `Sat-Sun: ${weekendHours}`
+              };
             };
 
             return {
               ...apiBranch,
-              phone: apiBranch.phone || '',
-              city: apiBranch.city || apiBranch.name.split(' ').pop() || '',
-              state: apiBranch.state || (apiBranch.name.includes('KL') || apiBranch.name.includes('Bangsar') || apiBranch.name.includes('Mont Kiara') ? 'Kuala Lumpur' : 'Selangor'),
-              whatsapp: (apiBranch.whatsapp || apiBranch.phone || '').replace(/\D/g, ''),
+              city: apiBranch.name.split(' ').pop() || '',
+              state: apiBranch.name.includes('KL') || apiBranch.name.includes('Bangsar') || apiBranch.name.includes('Mont Kiara') ? 'Kuala Lumpur' : 'Selangor',
+              whatsapp: (apiBranch.contact_whatsapp || apiBranch.contact_phone || '').replace(/\D/g, ''),
               hours: parseHours(apiBranch.operating_hours),
               mapUrl: apiBranch.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(apiBranch.address || '')}`,
               wazeUrl: apiBranch.waze_url || `https://waze.com/ul?q=${encodeURIComponent(apiBranch.address || '')}`,
-              doctor: {
-                name: doctorNames[index % doctorNames.length],
-                photo: doctorPhotos[index % doctorPhotos.length]
-              },
               clinicPhoto: clinicPhotos[index % clinicPhotos.length]
             };
           });
@@ -428,7 +139,6 @@ const Branches = () => {
   // Get unique values for filters
   const states = ["all", ...Array.from(new Set(branches.map(b => b.state).filter(Boolean)))];
   const cities = ["all", ...Array.from(new Set(branches.map(b => b.city).filter(Boolean)))];
-  const doctors = ["all", ...Array.from(new Set(branches.map(b => b.doctor?.name).filter(Boolean)))];
 
   const filteredBranches = branches.filter(branch => {
     const query = searchQuery.toLowerCase();
@@ -436,14 +146,12 @@ const Branches = () => {
       branch.name.toLowerCase().includes(query) ||
       (branch.city && branch.city.toLowerCase().includes(query)) ||
       (branch.state && branch.state.toLowerCase().includes(query)) ||
-      (branch.doctor?.name && branch.doctor.name.toLowerCase().includes(query)) ||
       branch.address.toLowerCase().includes(query);
     
     const matchesState = selectedState === "all" || branch.state === selectedState;
     const matchesCity = selectedCity === "all" || branch.city === selectedCity;
-    const matchesDoctor = selectedDoctor === "all" || branch.doctor?.name === selectedDoctor;
     
-    return matchesSearch && matchesState && matchesCity && matchesDoctor;
+    return matchesSearch && matchesState && matchesCity;
   });
 
   const handleWhatsApp = (whatsapp: string, branchName: string) => {
@@ -476,7 +184,7 @@ const Branches = () => {
           </div>
 
           {/* Filter Dropdowns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
             <Select value={selectedState} onValueChange={setSelectedState}>
               <SelectTrigger className="h-12 bg-background">
                 <SelectValue placeholder="Filter by State" />
@@ -498,19 +206,6 @@ const Branches = () => {
                 {cities.map(city => (
                   <SelectItem key={city} value={city}>
                     {city === "all" ? "All Cities" : city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
-              <SelectTrigger className="h-12 bg-background">
-                <SelectValue placeholder="Filter by Doctor" />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                {doctors.map(doctor => (
-                  <SelectItem key={doctor} value={doctor}>
-                    {doctor === "all" ? "All Doctors" : doctor}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -579,13 +274,15 @@ const Branches = () => {
                 {/* Contact & Navigation Buttons */}
                 <div className="flex flex-wrap gap-2">
                   {/* WhatsApp Button */}
-                  <Button
-                    onClick={() => handleWhatsApp(branch.whatsapp, branch.name)}
-                    className="flex-1 min-w-[140px] bg-[#25D366] hover:bg-[#20BA5A] text-white border-0 h-11 text-sm font-medium shadow-soft"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    {t('branches.whatsapp')}
-                  </Button>
+                  {branch.whatsapp && (
+                    <Button
+                      onClick={() => handleWhatsApp(branch.whatsapp, branch.name)}
+                      className="flex-1 min-w-[140px] bg-[#25D366] hover:bg-[#20BA5A] text-white border-0 h-11 text-sm font-medium shadow-soft"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      {t('branches.whatsapp')}
+                    </Button>
+                  )}
 
                   {/* Maps Button */}
                   <Button
@@ -609,15 +306,17 @@ const Branches = () => {
                 </div>
 
                 {/* Phone */}
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                  <a 
-                    href={`tel:${branch.phone}`} 
-                    className="text-sm text-foreground hover:text-primary transition-colors font-medium"
-                  >
-                    {branch.phone}
-                  </a>
-                </div>
+                {branch.contact_phone && (
+                  <div className="flex items-center gap-3">
+                    <Phone className="h-4 w-4 text-primary flex-shrink-0" />
+                    <a
+                      href={`tel:${branch.contact_phone}`}
+                      className="text-sm text-foreground hover:text-primary transition-colors font-medium"
+                    >
+                      {branch.contact_phone}
+                    </a>
+                  </div>
+                )}
 
                 {/* Operating Hours */}
                 <div className="space-y-2">
@@ -635,30 +334,7 @@ const Branches = () => {
                   </div>
                 </div>
 
-                {/* Doctor Profile */}
-                <div className="pt-4 border-t border-border">
-                  <p className="text-xs font-semibold text-muted-foreground mb-3">
-                    {t('branches.residentDoctor').toUpperCase()}
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <img 
-                        src={branch.doctor.photo} 
-                        alt={branch.doctor.name}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-primary/20"
-                      />
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-secondary rounded-full border-2 border-card" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">
-                        {branch.doctor.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        General Practitioner
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                {/* Doctor info can be shown on branch detail pages */}
               </div>
             </Card>
           ))}
@@ -673,7 +349,7 @@ const Branches = () => {
               No branches found matching "{searchQuery}"
             </p>
             <p className="text-sm text-muted-foreground/80 mt-2">
-              Try searching by location, city, or doctor name
+              Try searching by location, city, or state
             </p>
           </div>
         )}

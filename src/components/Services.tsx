@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Baby, Syringe, ScanLine, Heart, Users, Scissors, UserPlus, TestTube2, Shield, FlaskConical, Stethoscope, Activity, Target, Scale, User, Loader2 } from "lucide-react";
+import { Baby, Syringe, ScanLine, Heart, Users, Scissors, UserPlus, TestTube2, Shield, FlaskConical, Stethoscope, Activity, Target, Scale, User, Loader2 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { apiService, Service as ApiService } from "@/services/api";
 import { toast } from "sonner";
 import ServiceDetailModal from "./ServiceDetailModal";
 
 interface Service extends ApiService {
   title: string;
-  icon: any;
-  details: string[];
-  duration?: string;
+  icon: LucideIcon;
 }
 
 const Services = () => {
@@ -18,6 +17,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   // Fetch services from API
   useEffect(() => {
@@ -32,35 +32,16 @@ const Services = () => {
           // Transform API data to include UI-specific fields
           const transformedServices: Service[] = response.data.map((apiService, index) => {
             // Map service icons
-            const serviceIcons = [
+            const serviceIcons: LucideIcon[] = [
               Stethoscope, Heart, Baby, Syringe, ScanLine, 
               Users, Scissors, UserPlus, TestTube2, Shield, 
               FlaskConical, Activity, Target, Scale, User
             ];
             
-            const serviceTitles = [
-              "General Consultation", "Physiotherapy", "Therapeutic Massage",
-              "Vaccination", "Health Screening", "Skin Treatment",
-              "Alternative Therapy", "Eye Examination"
-            ];
-
-            const serviceDetails = [
-              ["Comprehensive health assessment", "Medical history review", "Physical examination", "Diagnosis and treatment plan", "Prescription if needed", "Follow-up recommendations"],
-              ["Muscle and joint assessment", "Pain management techniques", "Rehabilitation exercises", "Manual therapy", "Electrotherapy if needed", "Home exercise program"],
-              ["Deep tissue massage", "Swedish massage techniques", "Stress relief therapy", "Muscle tension release", "Relaxation techniques", "Post-treatment care advice"],
-              ["Vaccine administration", "Health screening before vaccination", "Side effects monitoring", "Vaccination record update", "Follow-up care if needed", "Health education"],
-              ["Comprehensive health check-up", "Blood pressure monitoring", "BMI assessment", "Basic laboratory tests", "Health risk assessment", "Lifestyle counseling"],
-              ["Acne treatment", "Facial cleansing", "Anti-aging treatment", "Skin care", "Dermatology consultation", "Beauty treatments"],
-              ["Acupuncture", "Reflexology", "Herbal therapy", "Meditation", "Energy therapy", "Holistic healing"],
-              ["Eye examination", "Vision testing", "Eyeglass prescription", "Eye treatment", "Ophthalmology consultation", "Vision care"]
-            ];
-
             return {
               ...apiService,
-              title: serviceTitles[index] || apiService.name,
+              title: apiService.name,
               icon: serviceIcons[index % serviceIcons.length],
-              details: serviceDetails[index] || ["Perkhidmatan profesional", "Penjagaan berkualiti", "Kakitangan berpengalaman"],
-              duration: `${apiService.duration_minutes} minit`
             };
           });
           
@@ -82,6 +63,21 @@ const Services = () => {
 
     fetchServices();
   }, []);
+
+  const openServiceDetail = async (service: Service) => {
+    setSelectedService(service);
+    setIsLoadingDetail(true);
+    try {
+      const response = await apiService.getService(service.slug);
+      if (response.success && response.data) {
+        setSelectedService({ ...response.data, title: service.title, icon: service.icon });
+      }
+    } catch (error) {
+      console.error("Failed to load service detail:", error);
+    } finally {
+      setIsLoadingDetail(false);
+    }
+  };
 
   return (
     <section id="services" className="py-24 bg-gradient-to-b from-background to-muted">
@@ -123,7 +119,7 @@ const Services = () => {
                   key={service.id}
                   className="overflow-hidden hover-lift border-0 shadow-card group cursor-pointer transition-all"
                   style={{ animationDelay: `${index * 100}ms` }}
-                  onClick={() => setSelectedService(service)}
+                  onClick={() => openServiceDetail(service)}
                 >
                   <div className="p-8 text-center space-y-6">
                     <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -134,17 +130,18 @@ const Services = () => {
                       <h3 className="text-xl font-heading font-semibold text-foreground mb-2">
                         {service.title}
                       </h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                        {service.description}
-                      </p>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-primary font-semibold">
-                          {service.price_range_display}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {service.duration}
-                        </span>
-                      </div>
+                      {service.short_description && (
+                        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                          {service.short_description}
+                        </p>
+                      )}
+                      {service.show_price && service.price_range && (
+                        <div className="flex items-center justify-end text-sm">
+                          <span className="text-primary font-semibold">
+                            {service.price_range}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <Button 
@@ -165,7 +162,8 @@ const Services = () => {
           open={!!selectedService}
           onClose={() => setSelectedService(null)}
           service={selectedService}
-          onBookAppointment={(service) => {
+          isLoading={isLoadingDetail}
+          onBookAppointment={() => {
             setSelectedService(null);
             // Scroll to booking section
             document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });

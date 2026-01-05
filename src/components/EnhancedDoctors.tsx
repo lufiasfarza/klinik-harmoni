@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Star, MapPin, Clock, Award, Languages, Calendar, Users, Filter, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,15 +32,7 @@ const Doctors: React.FC<DoctorsProps> = ({
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
-  useEffect(() => {
-    loadDoctors();
-  }, [selectedBranchId]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [doctors, searchTerm, selectedSpecialization, selectedExperience]);
-
-  const loadDoctors = async () => {
+  const loadDoctors = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -69,9 +61,9 @@ const Doctors: React.FC<DoctorsProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedBranchId]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...doctors];
 
     // Search filter
@@ -100,7 +92,15 @@ const Doctors: React.FC<DoctorsProps> = ({
     }
 
     setFilteredDoctors(filtered);
-  };
+  }, [doctors, searchTerm, selectedExperience, selectedSpecialization]);
+
+  useEffect(() => {
+    loadDoctors();
+  }, [loadDoctors]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleDoctorSelect = (doctor: Doctor) => {
     setSelectedDoctor(doctor);

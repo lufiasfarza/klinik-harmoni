@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Stethoscope, Clock, DollarSign, MapPin, Filter, Search, Star, Users, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,15 +34,7 @@ const Services: React.FC<ServicesProps> = ({
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
 
-  useEffect(() => {
-    loadServices();
-  }, [selectedBranchId]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [services, searchTerm, selectedCategory, priceRange]);
-
-  const loadServices = async () => {
+  const loadServices = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -71,9 +63,9 @@ const Services: React.FC<ServicesProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedBranchId]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...services];
 
     // Search filter
@@ -103,7 +95,15 @@ const Services: React.FC<ServicesProps> = ({
     }
 
     setFilteredServices(filtered);
-  };
+  }, [priceRange, searchTerm, selectedCategory, services]);
+
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);

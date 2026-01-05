@@ -38,8 +38,17 @@ interface BookingHistoryProps {
   onReschedule?: (booking: Booking) => void;
 }
 
+const filterOptions = [
+  { key: 'all', label: 'All' },
+  { key: 'upcoming', label: 'Upcoming' },
+  { key: 'past', label: 'Past' },
+  { key: 'cancelled', label: 'Cancelled' },
+] as const;
+
+type FilterKey = (typeof filterOptions)[number]['key'];
+
 const BookingHistory = ({ bookings, onEdit, onCancel, onReschedule }: BookingHistoryProps) => {
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past' | 'cancelled'>('all');
+  const [filter, setFilter] = useState<FilterKey>('all');
   const [sortBy, setSortBy] = useState<'date' | 'status'>('date');
 
   const filteredBookings = bookings
@@ -117,17 +126,12 @@ const BookingHistory = ({ bookings, onEdit, onCancel, onReschedule }: BookingHis
       {/* Filters and Sort */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex gap-2">
-          {[
-            { key: 'all', label: 'All' },
-            { key: 'upcoming', label: 'Upcoming' },
-            { key: 'past', label: 'Past' },
-            { key: 'cancelled', label: 'Cancelled' },
-          ].map(({ key, label }) => (
+          {filterOptions.map(({ key, label }) => (
             <Button
               key={key}
               variant={filter === key ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setFilter(key as any)}
+              onClick={() => setFilter(key)}
             >
               {label}
             </Button>

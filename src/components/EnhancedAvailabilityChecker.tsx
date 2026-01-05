@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, Clock, User, MapPin, RefreshCw, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,36 +38,7 @@ const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedBranch) {
-      setSelectedBranchId(selectedBranch.id);
-      loadBranchData(selectedBranch.id);
-    }
-  }, [selectedBranch]);
-
-  useEffect(() => {
-    if (selectedDoctor) {
-      setSelectedDoctorId(selectedDoctor.id);
-    }
-  }, [selectedDoctor]);
-
-  useEffect(() => {
-    if (selectedService) {
-      setSelectedServiceId(selectedService.id);
-    }
-  }, [selectedService]);
-
-  useEffect(() => {
-    if (selectedBranchId && selectedDate) {
-      checkAvailability();
-    }
-  }, [selectedBranchId, selectedDate, selectedServiceId, selectedDoctorId]);
-
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -89,9 +60,9 @@ const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadBranchData = async (branchId: number) => {
+  const loadBranchData = useCallback(async (branchId: number) => {
     try {
       const [doctorsResponse, servicesResponse] = await Promise.all([
         apiService.getBranchDoctors(branchId),
@@ -108,9 +79,9 @@ const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
     } catch (err) {
       console.error('Failed to load branch data:', err);
     }
-  };
+  }, []);
 
-  const checkAvailability = async () => {
+  const checkAvailability = useCallback(async () => {
     if (!selectedBranchId || !selectedDate) return;
 
     try {
@@ -149,7 +120,36 @@ const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [onAvailabilityChange, selectedBranchId, selectedDate, selectedDoctorId, selectedServiceId]);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
+  useEffect(() => {
+    if (selectedBranch) {
+      setSelectedBranchId(selectedBranch.id);
+      loadBranchData(selectedBranch.id);
+    }
+  }, [selectedBranch, loadBranchData]);
+
+  useEffect(() => {
+    if (selectedDoctor) {
+      setSelectedDoctorId(selectedDoctor.id);
+    }
+  }, [selectedDoctor]);
+
+  useEffect(() => {
+    if (selectedService) {
+      setSelectedServiceId(selectedService.id);
+    }
+  }, [selectedService]);
+
+  useEffect(() => {
+    if (selectedBranchId && selectedDate) {
+      checkAvailability();
+    }
+  }, [checkAvailability, selectedBranchId, selectedDate]);
 
   const handleBranchChange = (branchId: number) => {
     setSelectedBranchId(branchId);

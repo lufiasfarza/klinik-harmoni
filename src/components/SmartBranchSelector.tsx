@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 interface Branch extends ApiBranch {
   distance?: number;
-  services: string[];
+  operatingHours?: string | null;
   isOpen: boolean;
 }
 
@@ -40,8 +40,8 @@ const SmartBranchSelector = ({ onBranchSelect, selectedBranch }: SmartBranchSele
         if (response.success && response.data) {
           const transformedBranches: Branch[] = response.data.map((apiBranch) => ({
             ...apiBranch,
-            services: ["General Consultation", "Physiotherapy", "Vaccination", "Health Screening"], // Default services
-            isOpen: true, // Default to open
+            operatingHours: apiBranch.today_hours ?? null,
+            isOpen: apiBranch.is_currently_open ?? false,
           }));
           
           console.log('Transformed branches for SmartBranchSelector:', transformedBranches);
@@ -78,33 +78,37 @@ const SmartBranchSelector = ({ onBranchSelect, selectedBranch }: SmartBranchSele
     }
   }, []);
 
+  const calculateDistance = (branch: Branch) => {
+    if (!userLocation || branch.latitude == null || branch.longitude == null) return null;
+    const toRad = (value: number) => (value * Math.PI) / 180;
+    const earthRadius = 6371;
+    const dLat = toRad(branch.latitude - userLocation.lat);
+    const dLon = toRad(branch.longitude - userLocation.lng);
+    const lat1 = toRad(userLocation.lat);
+    const lat2 = toRad(branch.latitude);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+    return 2 * earthRadius * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
   const filteredBranches = branches
-    .filter(branch => 
+    .filter(branch =>
       branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      branch.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      branch.services.some(service => service.toLowerCase().includes(searchTerm.toLowerCase()))
+      branch.address.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       if (sortBy === 'distance' && userLocation) {
-        // Calculate distance (simplified)
-        const distanceA = Math.random() * 20; // Mock distance
-        const distanceB = Math.random() * 20;
+        const distanceA = calculateDistance(a);
+        const distanceB = calculateDistance(b);
+        if (distanceA === null) return 1;
+        if (distanceB === null) return -1;
         return distanceA - distanceB;
       }
       return a.name.localeCompare(b.name);
     });
 
-  const getCurrentTimeStatus = (branch: Branch) => {
-    const now = new Date();
-    const hour = now.getHours();
-    const day = now.getDay();
-    
-    if (day === 0) return false; // Sunday
-    if (day === 6 && hour >= 8 && hour < 18) return true; // Saturday
-    if (hour >= 8 && hour < 20) return true; // Weekdays
-    
-    return false;
-  };
+  const getCurrentTimeStatus = (branch: Branch) => branch.isOpen;
 
   if (loading) {
     return (
@@ -182,29 +186,18 @@ const SmartBranchSelector = ({ onBranchSelect, selectedBranch }: SmartBranchSele
                     <MapPin className="h-3 w-3" />
                     <span>{branch.address}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{branch.operatingHours}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    <span>{branch.phone}</span>
-                  </div>
-                </div>
-                
-                <div className="mt-2">
-                  <div className="flex flex-wrap gap-1">
-                    {branch.services.slice(0, 3).map((service) => (
-                      <Badge key={service} variant="outline" className="text-xs">
-                        {service}
-                      </Badge>
-                    ))}
-                    {branch.services.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{branch.services.length - 3} more
-                      </Badge>
-                    )}
-                  </div>
+                  {branch.operatingHours && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>{branch.operatingHours}</span>
+                    </div>
+                  )}
+                  {branch.contact_phone && (
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      <span>{branch.contact_phone}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

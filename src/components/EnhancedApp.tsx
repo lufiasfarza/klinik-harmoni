@@ -9,7 +9,7 @@ import EnhancedDoctors from '@/components/EnhancedDoctors';
 import EnhancedServices from '@/components/EnhancedServices';
 import EnhancedBookingForm from '@/components/EnhancedBookingForm';
 import EnhancedAvailabilityChecker from '@/components/EnhancedAvailabilityChecker';
-import { Branch, Doctor, Service, TimeSlot, AvailabilityData } from '@/services/enhanced-api';
+import { Branch, Doctor, Service, TimeSlot, AvailabilityData, Booking } from '@/services/enhanced-api';
 import { useTranslation } from 'react-i18next';
 
 type ActiveTab = 'branches' | 'doctors' | 'services' | 'booking' | 'availability';
@@ -73,7 +73,7 @@ const App: React.FC = () => {
     addNotification(t('app.redirectingToBooking'));
   };
 
-  const handleBookingSuccess = (booking: any) => {
+  const handleBookingSuccess = (_booking: Booking) => {
     addNotification(t('app.bookingSuccess'));
     // Reset selections
     setSelectedBranch(null);

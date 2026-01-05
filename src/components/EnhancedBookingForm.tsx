@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar, Clock, User, Phone, Mail, MapPin, Stethoscope, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,14 +9,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { apiService, Branch, Doctor, Service, TimeSlot } from '@/services/enhanced-api';
+import { apiService, Branch, Doctor, Service, TimeSlot, Booking } from '@/services/enhanced-api';
 import { useTranslation } from 'react-i18next';
 
 interface BookingFormProps {
   selectedBranch?: Branch;
   selectedDoctor?: Doctor;
   selectedService?: Service;
-  onBookingSuccess?: (booking: any) => void;
+  onBookingSuccess?: (booking: Booking) => void;
   onBookingError?: (error: string) => void;
 }
 
@@ -62,36 +62,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
   const [success, setSuccess] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedBranch) {
-      setFormData(prev => ({ ...prev, branch_id: selectedBranch.id }));
-      loadBranchData(selectedBranch.id);
-    }
-  }, [selectedBranch]);
-
-  useEffect(() => {
-    if (selectedDoctor) {
-      setFormData(prev => ({ ...prev, doctor_id: selectedDoctor.id }));
-    }
-  }, [selectedDoctor]);
-
-  useEffect(() => {
-    if (selectedService) {
-      setFormData(prev => ({ ...prev, service_id: selectedService.id }));
-    }
-  }, [selectedService]);
-
-  useEffect(() => {
-    if (formData.branch_id && formData.appointment_date) {
-      loadTimeSlots();
-    }
-  }, [formData.branch_id, formData.appointment_date, formData.service_id]);
-
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -113,9 +84,9 @@ const BookingForm: React.FC<BookingFormProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const loadBranchData = async (branchId: number) => {
+  const loadBranchData = useCallback(async (branchId: number) => {
     try {
       const [doctorsResponse, servicesResponse] = await Promise.all([
         apiService.getBranchDoctors(branchId),
@@ -132,9 +103,9 @@ const BookingForm: React.FC<BookingFormProps> = ({
     } catch (err) {
       console.error('Failed to load branch data:', err);
     }
-  };
+  }, []);
 
-  const loadTimeSlots = async () => {
+  const loadTimeSlots = useCallback(async () => {
     try {
       if (!formData.branch_id || !formData.appointment_date) return;
 
@@ -162,7 +133,36 @@ const BookingForm: React.FC<BookingFormProps> = ({
       console.error('Failed to load time slots:', err);
       setTimeSlots([]);
     }
-  };
+  }, [formData.appointment_date, formData.branch_id, formData.doctor_id, formData.service_id]);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
+  useEffect(() => {
+    if (selectedBranch) {
+      setFormData(prev => ({ ...prev, branch_id: selectedBranch.id }));
+      loadBranchData(selectedBranch.id);
+    }
+  }, [selectedBranch, loadBranchData]);
+
+  useEffect(() => {
+    if (selectedDoctor) {
+      setFormData(prev => ({ ...prev, doctor_id: selectedDoctor.id }));
+    }
+  }, [selectedDoctor]);
+
+  useEffect(() => {
+    if (selectedService) {
+      setFormData(prev => ({ ...prev, service_id: selectedService.id }));
+    }
+  }, [selectedService]);
+
+  useEffect(() => {
+    if (formData.branch_id && formData.appointment_date) {
+      loadTimeSlots();
+    }
+  }, [formData.branch_id, formData.appointment_date, loadTimeSlots]);
 
   const handleInputChange = (field: keyof BookingFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));

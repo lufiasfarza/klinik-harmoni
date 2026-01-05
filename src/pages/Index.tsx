@@ -1,8 +1,5 @@
-import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/HeroCarousel";
-import QuickBooking from "@/components/QuickBooking";
-import MobileBookingFlow from "@/components/MobileBookingFlow";
 import FloatingBookingButton from "@/components/FloatingBookingButton";
 import Stats from "@/components/Stats";
 import Services from "@/components/Services";
@@ -12,27 +9,17 @@ import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import DynamicHead from "@/components/DynamicHead";
-import { useMobile } from "@/hooks/use-mobile";
 import { useClinic } from "@/contexts/ClinicContext";
+import Booking from "@/components/Booking";
 
 const Index = () => {
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const [showMobileBooking, setShowMobileBooking] = useState(false);
-  const isMobile = useMobile();
   const { clinicInfo } = useClinic();
 
   const handleBookingClick = () => {
-    if (isMobile) {
-      setShowMobileBooking(true);
-    } else {
-      setBookingOpen(true);
+    const bookingSection = document.getElementById("booking");
+    if (bookingSection) {
+      bookingSection.scrollIntoView({ behavior: "smooth" });
     }
-  };
-
-  const handleMobileBookingComplete = (bookingData: any) => {
-    console.log("Mobile booking completed:", bookingData);
-    setShowMobileBooking(false);
-    // Show success message or redirect
   };
 
   return (
@@ -46,23 +33,11 @@ const Index = () => {
       <Services />
       <Doctors />
       <Branches />
+      <Booking />
       <Testimonials />
       <Footer />
       <WhatsAppButton />
       <FloatingBookingButton onClick={handleBookingClick} />
-      
-      {/* Desktop Booking */}
-      {!isMobile && (
-        <QuickBooking open={bookingOpen} onOpenChange={setBookingOpen} />
-      )}
-      
-      {/* Mobile Booking */}
-      {isMobile && showMobileBooking && (
-        <MobileBookingFlow
-          onComplete={handleMobileBookingComplete}
-          onClose={() => setShowMobileBooking(false)}
-        />
-      )}
     </div>
   );
 };

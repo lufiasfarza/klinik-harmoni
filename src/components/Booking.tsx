@@ -12,35 +12,45 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { apiService, handleApiError, Branch, Service } from "@/services/api";
+import { apiService, handleApiError, Branch, Doctor, Service } from "@/services/api";
 
 // Enhanced validation schema
 const bookingSchema = z.object({
   branch_id: z.number().min(1, "Please select a branch"),
   service_id: z.number().min(1, "Please select a service"),
-  appointment_date: z.string().min(1, "Please select a date"),
-  appointment_time: z.string().min(1, "Please select a time"),
+  doctor_id: z.number().optional(),
+  date: z.string().min(1, "Please select a date"),
+  time: z.string().min(1, "Please select a time"),
   patient_name: z.string().min(2, "Name must be at least 2 characters").max(50, "Name too long"),
-      patient_phone: z.string().regex(/^[\+]?[0-9\s\-()]{10,15}$/, "Invalid phone number"),
-  patient_email: z.string().email("Invalid email address"),
+  patient_ic: z.string().min(5, "Please enter a valid IC/Passport"),
+  contact_phone: z.string().regex(/^[+]?[\d\s\-()]{10,15}$/, "Invalid phone number"),
+  contact_email: z.string().email("Invalid email address").optional(),
+  symptoms_description: z.string().max(1000, "Notes too long").optional(),
 });
 
 const Booking = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
     branch_id: 0,
     service_id: 0,
-    appointment_time: "",
+    doctor_id: 0,
+    time: "",
     patient_name: "",
-    patient_phone: "",
-    patient_email: "",
+    patient_ic: "",
+    contact_phone: "",
+    contact_email: "",
+    symptoms_description: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const selectedBranch = branches.find((branch) => branch.id === formData.branch_id);
 
   // Fetch branches and services from API
   useEffect(() => {
@@ -58,7 +68,7 @@ const Booking = () => {
         console.log('Services Response:', servicesResponse);
         
         if (branchesResponse.success && branchesResponse.data) {
-          setBranches(branchesResponse.data);
+          setBranches(branchesResponse.data.filter((branch) => branch.accepts_online_booking));
         } else {
           console.error('Failed to load branches:', branchesResponse);
           toast.error('Failed to load branches');
@@ -81,6 +91,73 @@ const Booking = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const loadDoctors = async () => {
+      if (!selectedBranch?.slug) {
+        setDoctors([]);
+        return;
+      }
+
+      try {
+        const response = await apiService.getBranchDoctors(selectedBranch.slug);
+        if (response.success && response.data) {
+          setDoctors(response.data);
+        } else {
+          setDoctors([]);
+        }
+      } catch (error) {
+        console.error("Failed to load doctors:", error);
+        setDoctors([]);
+      }
+    };
+
+    loadDoctors();
+  }, [selectedBranch?.slug]);
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      doctor_id: 0,
+      time: "",
+    }));
+  }, [formData.branch_id]);
+
+  useEffect(() => {
+    const loadSlots = async () => {
+      if (!selectedBranch?.slug || !date) {
+        setAvailableSlots([]);
+        return;
+      }
+
+      try {
+        const response = await apiService.getBranchSlots(
+          selectedBranch.slug,
+          format(date, "yyyy-MM-dd"),
+          formData.doctor_id || undefined
+        );
+        if (response.success && response.data) {
+          const slots = response.data
+            .filter((slot) => slot.available)
+            .map((slot) => slot.time);
+          setAvailableSlots(slots);
+        } else {
+          setAvailableSlots([]);
+        }
+      } catch (error) {
+        console.error("Failed to load slots:", error);
+        setAvailableSlots([]);
+      }
+    };
+
+    loadSlots();
+  }, [selectedBranch?.slug, date, formData.doctor_id]);
+
+  useEffect(() => {
+    if (formData.time && !availableSlots.includes(formData.time)) {
+      setFormData((prev) => ({ ...prev, time: "" }));
+    }
+  }, [availableSlots, formData.time]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -89,12 +166,16 @@ const Booking = () => {
       // Prepare data for API
       const apiData = {
         branch_id: formData.branch_id,
-        service_id: formData.service_id,
-        appointment_date: date ? format(date, 'yyyy-MM-dd') : '',
-        appointment_time: formData.appointment_time,
+        service_id: formData.service_id || undefined,
+        doctor_id: formData.doctor_id || undefined,
+        date: date ? format(date, "yyyy-MM-dd") : "",
+        time: formData.time,
         patient_name: formData.patient_name.trim(),
-        patient_phone: formData.patient_phone.replace(/\D/g, ''), // Remove non-digits
-        patient_email: formData.patient_email.toLowerCase().trim(),
+        patient_ic: formData.patient_ic.trim(),
+        contact_phone: formData.contact_phone.replace(/\D/g, ""),
+        contact_email: formData.contact_email ? formData.contact_email.toLowerCase().trim() : undefined,
+        symptoms_description: formData.symptoms_description?.trim() || undefined,
+        preferred_language: (i18n.language.startsWith("en") ? "en" : "ms") as "ms" | "en",
       };
       
       // Validate form data
@@ -104,16 +185,19 @@ const Booking = () => {
       const response = await apiService.createBooking(validatedData);
       
       if (response.success) {
-        toast.success(`Booking successful! Booking ID: ${response.data?.booking_id}`);
+        toast.success(`Booking successful! Ref: ${response.data?.booking_reference}`);
         
         // Reset form
         setFormData({
           branch_id: 0,
           service_id: 0,
-          appointment_time: "",
+          doctor_id: 0,
+          time: "",
           patient_name: "",
-          patient_phone: "",
-          patient_email: "",
+          patient_ic: "",
+          contact_phone: "",
+          contact_email: "",
+          symptoms_description: "",
         });
         setDate(undefined);
         setErrors({});
@@ -190,18 +274,21 @@ const Booking = () => {
 
               {/* Doctor Selection */}
               <div className="space-y-2">
-                <Label htmlFor="doctor">{t('booking.doctor')} *</Label>
-                <Select value={formData.doctor} onValueChange={(value) => handleChange("doctor", value)}>
-                  <SelectTrigger className={errors.doctor ? "border-destructive" : ""}>
+                <Label htmlFor="doctor">{t('booking.doctor')}</Label>
+                <Select value={formData.doctor_id.toString()} onValueChange={(value) => handleChange("doctor_id", parseInt(value, 10))}>
+                  <SelectTrigger className={errors.doctor_id ? "border-destructive" : ""}>
                     <SelectValue placeholder={t('booking.selectDoctor')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dr-alicia">Dr. Alicia Tan</SelectItem>
-                    <SelectItem value="ahmad">Ahmad Zulkifli</SelectItem>
-                    <SelectItem value="any">Any Available</SelectItem>
+                    <SelectItem value="0">{t('booking.anyDoctor')}</SelectItem>
+                    {doctors.map((doctor) => (
+                      <SelectItem key={doctor.id} value={doctor.id.toString()}>
+                        {doctor.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                {errors.doctor && <p className="text-sm text-destructive">{errors.doctor}</p>}
+                {errors.doctor_id && <p className="text-sm text-destructive">{errors.doctor_id}</p>}
               </div>
 
                   {/* Service Selection */}
@@ -214,7 +301,8 @@ const Booking = () => {
                       <SelectContent>
                         {services.map((service) => (
                           <SelectItem key={service.id} value={service.id.toString()}>
-                            {service.name} - RM {service.price}
+                            {service.name}
+                            {service.show_price && service.price_range ? ` - ${service.price_range}` : ""}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -255,22 +343,25 @@ const Booking = () => {
 
               {/* Time Selection */}
               <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="time">{t('booking.time')} *</Label>
-              <Select value={formData.appointment_time} onValueChange={(value) => handleChange("appointment_time", value)}>
-                <SelectTrigger className={errors.appointment_time ? "border-destructive" : ""}>
-                  <SelectValue placeholder={t('booking.selectTime')} />
+                <Label htmlFor="time">{t('booking.time')} *</Label>
+                <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+                  <SelectTrigger className={errors.time ? "border-destructive" : ""}>
+                    <SelectValue placeholder={t('booking.selectTime')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="09:00">9:00 AM</SelectItem>
-                    <SelectItem value="10:00">10:00 AM</SelectItem>
-                    <SelectItem value="11:00">11:00 AM</SelectItem>
-                    <SelectItem value="14:00">2:00 PM</SelectItem>
-                    <SelectItem value="15:00">3:00 PM</SelectItem>
-                    <SelectItem value="16:00">4:00 PM</SelectItem>
-                    <SelectItem value="17:00">5:00 PM</SelectItem>
+                    {availableSlots.length === 0 && (
+                      <SelectItem value="none" disabled>
+                        {t('booking.noSlotsAvailable')}
+                      </SelectItem>
+                    )}
+                    {availableSlots.map((slot) => (
+                      <SelectItem key={slot} value={slot}>
+                        {slot}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                {errors.appointment_time && <p className="text-sm text-destructive">{errors.appointment_time}</p>}
+                {errors.time && <p className="text-sm text-destructive">{errors.time}</p>}
               </div>
             </div>
 
@@ -291,29 +382,53 @@ const Booking = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="patient_ic">{t('booking.ic') || "IC/Passport"} *</Label>
+                  <Input
+                    id="patient_ic"
+                    type="text"
+                    value={formData.patient_ic}
+                    onChange={(e) => handleChange("patient_ic", e.target.value)}
+                    className={errors.patient_ic ? "border-destructive" : ""}
+                    required
+                  />
+                  {errors.patient_ic && <p className="text-sm text-destructive">{errors.patient_ic}</p>}
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="phone">{t('booking.phone')} *</Label>
                   <Input
                     id="phone"
                     type="tel"
-                    value={formData.patient_phone}
-                    onChange={(e) => handleChange("patient_phone", e.target.value)}
-                    className={errors.patient_phone ? "border-destructive" : ""}
+                    value={formData.contact_phone}
+                    onChange={(e) => handleChange("contact_phone", e.target.value)}
+                    className={errors.contact_phone ? "border-destructive" : ""}
                     required
                   />
-                  {errors.patient_phone && <p className="text-sm text-destructive">{errors.patient_phone}</p>}
+                  {errors.contact_phone && <p className="text-sm text-destructive">{errors.contact_phone}</p>}
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email">{t('booking.email')} *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t('booking.email')}</Label>
                   <Input
                     id="email"
                     type="email"
-                    value={formData.patient_email}
-                    onChange={(e) => handleChange("patient_email", e.target.value)}
-                    className={errors.patient_email ? "border-destructive" : ""}
-                    required
+                    value={formData.contact_email}
+                    onChange={(e) => handleChange("contact_email", e.target.value)}
+                    className={errors.contact_email ? "border-destructive" : ""}
                   />
-                  {errors.patient_email && <p className="text-sm text-destructive">{errors.patient_email}</p>}
+                  {errors.contact_email && <p className="text-sm text-destructive">{errors.contact_email}</p>}
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="symptoms">{t('booking.notes')}</Label>
+                  <Input
+                    id="symptoms"
+                    type="text"
+                    value={formData.symptoms_description}
+                    onChange={(e) => handleChange("symptoms_description", e.target.value)}
+                    className={errors.symptoms_description ? "border-destructive" : ""}
+                  />
+                  {errors.symptoms_description && <p className="text-sm text-destructive">{errors.symptoms_description}</p>}
                 </div>
               </div>
             </div>

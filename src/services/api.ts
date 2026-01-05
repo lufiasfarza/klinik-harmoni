@@ -3,13 +3,16 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://app.klinikharmoni.
 
 export interface BookingData {
   branch_id: number;
+  service_id?: number;
   doctor_id?: number;
-  service_id: number;
-  appointment_date: string; // YYYY-MM-DD format
-  appointment_time: string;
+  date: string; // YYYY-MM-DD format
+  time: string; // HH:mm format
   patient_name: string;
-  patient_phone: string;
-  patient_email: string;
+  patient_ic: string;
+  contact_phone: string;
+  contact_email?: string;
+  symptoms_description?: string;
+  preferred_language?: 'ms' | 'en';
 }
 
 export interface Branch {
@@ -17,20 +20,20 @@ export interface Branch {
   name: string;
   slug: string;
   address: string;
-  city?: string;
-  state?: string;
-  phone: string;
-  email?: string;
-  whatsapp?: string;
-  operating_hours: Record<string, { open: string; close: string }>;
-  image?: string;
-  gallery?: string[];
+  contact_phone: string | null;
+  contact_email: string | null;
+  contact_whatsapp: string | null;
+  short_description?: string | null;
+  featured_image?: string | null;
+  gallery_images?: string[];
   latitude?: number;
   longitude?: number;
   google_maps_url?: string;
   waze_url?: string;
+  operating_hours?: Record<string, { is_open: boolean; open: string; close: string } | string> | null;
+  today_hours?: string | null;
+  is_currently_open?: boolean;
   accepts_online_booking: boolean;
-  is_active: boolean;
 }
 
 export interface Doctor {
@@ -53,23 +56,32 @@ export interface Service {
   id: number;
   name: string;
   slug: string;
-  category: string;
-  description?: string;
-  short_description?: string;
-  icon?: string;
-  featured_image?: string;
-  gallery?: string[];
-  price_from?: number;
-  price_to?: number;
-  price_range_display?: string;
-  duration_minutes?: number;
+  category?: string | null;
+  short_description?: string | null;
+  full_description?: string | null;
+  tags?: string[] | null;
+  icon?: string | null;
+  featured_image?: string | null;
+  gallery_images?: string[];
+  show_price?: boolean;
+  price_range?: string | null;
+  price_from?: number | null;
+  price_to?: number | null;
+  price_unit?: string | null;
   is_featured: boolean;
-  is_active: boolean;
   branches?: {
     id: number;
     name: string;
-    custom_price?: number;
+    slug: string;
+    address: string;
+    accepts_online_booking: boolean;
   }[];
+}
+
+export interface TimeSlot {
+  time: string;
+  available: boolean;
+  reason?: string | null;
 }
 
 export interface Promo {
@@ -253,14 +265,29 @@ class ApiService {
   }
 
   // Booking API
-  async createBooking(bookingData: BookingData): Promise<ApiResponse<{ id: number; booking_id: string }>> {
+  async createBooking(bookingData: BookingData): Promise<ApiResponse<{
+    booking_reference: string;
+    branch: { name: string; address: string; contact_phone: string | null };
+    appointment: { date: string; time: string; service?: string | null; doctor?: string | null };
+    patient: { name: string };
+  }>> {
     return this.request('/bookings', {
       method: 'POST',
       body: JSON.stringify(bookingData),
     });
   }
 
-  async getBookingByReference(reference: string): Promise<ApiResponse<BookingData>> {
+  async getBookingByReference(reference: string): Promise<ApiResponse<{
+    booking_reference: string;
+    status: string;
+    branch: { name: string; address: string; contact_phone: string | null; google_maps_url?: string | null; waze_url?: string | null };
+    appointment: { date: string; time: string; service?: string | null; doctor?: string | null };
+    patient: { name: string };
+    is_confirmed: boolean;
+    is_cancelled: boolean;
+    cancelled_at?: string | null;
+    cancellation_reason?: string | null;
+  }>> {
     return this.request(`/bookings/${reference}`);
   }
 
@@ -283,13 +310,20 @@ class ApiService {
     return this.request(`/branches/${slug}/doctors`);
   }
 
-  async getBranchSlots(slug: string, date?: string): Promise<ApiResponse<string[]>> {
-    const query = date ? `?date=${date}` : '';
-    return this.request(`/branches/${slug}/slots${query}`);
+  async getBranchSlots(slug: string, date: string, doctorId?: number): Promise<ApiResponse<TimeSlot[]>> {
+    const params = new URLSearchParams({ date });
+    if (doctorId) params.append('doctor_id', doctorId.toString());
+    return this.request(`/branches/${slug}/slots?${params}`);
   }
 
-  async getBranchAvailableDates(slug: string): Promise<ApiResponse<string[]>> {
-    return this.request(`/branches/${slug}/available-dates`);
+  async getBranchAvailableDates(
+    slug: string,
+    days?: number
+  ): Promise<ApiResponse<Array<{ date: string; day_of_week: string; open: string; close: string }>>> {
+    const params = new URLSearchParams();
+    if (days) params.append('days', days.toString());
+    const query = params.toString() ? `?${params}` : '';
+    return this.request(`/branches/${slug}/available-dates${query}`);
   }
 
   // Doctor API
@@ -305,8 +339,12 @@ class ApiService {
   }
 
   // Service API
-  async getServices(): Promise<ApiResponse<Service[]>> {
-    return this.request('/services');
+  async getServices(params?: { category?: string; branch_id?: number }): Promise<ApiResponse<Service[]>> {
+    const queryParams = new URLSearchParams();
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.branch_id) queryParams.append('branch_id', params.branch_id.toString());
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return this.request(`/services${query}`);
   }
 
   async getFeaturedServices(): Promise<ApiResponse<Service[]>> {
@@ -350,7 +388,7 @@ export const validateEmail = (email: string): boolean => {
 };
 
 export const validatePhoneNumber = (phone: string): boolean => {
-  const phoneRegex = /^[\+]?[0-9\s\-()]{10,15}$/;
+  const phoneRegex = /^[+]?[\d\s\-()]{10,15}$/;
   return phoneRegex.test(phone);
 };
 

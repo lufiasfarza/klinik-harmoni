@@ -99,6 +99,29 @@ export interface AvailabilityData {
   message?: string;
 }
 
+export interface Booking {
+  id: number;
+  branch_id?: number;
+  doctor_id?: number;
+  service_id?: number;
+  appointment_date?: string;
+  appointment_time?: string;
+  patient_name?: string;
+  patient_phone?: string;
+  patient_email?: string;
+  notes?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type ServicePricing = Record<string, unknown>;
+
+export type AvailabilityCheckResult = {
+  available?: boolean;
+  message?: string;
+} & Record<string, unknown>;
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -125,7 +148,6 @@ class EnhancedApiService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${this.getApiToken()}`,
           ...options.headers,
         },
         ...options,
@@ -156,11 +178,6 @@ class EnhancedApiService {
         message: 'Network error occurred',
       };
     }
-  }
-
-  private getApiToken(): string {
-    // In production, this should be stored securely
-    return 'klinik_harmoni_api_token_2024_production_secure';
   }
 
   // Branch endpoints
@@ -266,13 +283,13 @@ class EnhancedApiService {
     return this.request<string[]>('/services/categories');
   }
 
-  async getServicePricing(serviceId: number): Promise<ApiResponse<any>> {
-    return this.request(`/services/${serviceId}/pricing`);
+  async getServicePricing(serviceId: number): Promise<ApiResponse<ServicePricing>> {
+    return this.request<ServicePricing>(`/services/${serviceId}/pricing`);
   }
 
   // Booking endpoints
-  async createBooking(bookingData: BookingData): Promise<ApiResponse<any>> {
-    return this.request('/bookings', {
+  async createBooking(bookingData: BookingData): Promise<ApiResponse<Booking>> {
+    return this.request<Booking>('/bookings', {
       method: 'POST',
       body: JSON.stringify(bookingData),
     });
@@ -287,7 +304,7 @@ class EnhancedApiService {
     date_to?: string;
     patient_email?: string;
     per_page?: number;
-  }): Promise<ApiResponse<any[]>> {
+  }): Promise<ApiResponse<Booking[]>> {
     const searchParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -295,22 +312,22 @@ class EnhancedApiService {
       });
     }
     
-    return this.request<any[]>(`/bookings?${searchParams}`);
+    return this.request<Booking[]>(`/bookings?${searchParams}`);
   }
 
-  async getBooking(id: number): Promise<ApiResponse<any>> {
-    return this.request(`/bookings/${id}`);
+  async getBooking(id: number): Promise<ApiResponse<Booking>> {
+    return this.request<Booking>(`/bookings/${id}`);
   }
 
-  async updateBooking(id: number, data: { status: string; notes?: string }): Promise<ApiResponse<any>> {
-    return this.request(`/bookings/${id}`, {
+  async updateBooking(id: number, data: { status: string; notes?: string }): Promise<ApiResponse<Booking>> {
+    return this.request<Booking>(`/bookings/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
-  async cancelBooking(id: number): Promise<ApiResponse<any>> {
-    return this.request(`/bookings/${id}/cancel`, {
+  async cancelBooking(id: number): Promise<ApiResponse<Booking>> {
+    return this.request<Booking>(`/bookings/${id}/cancel`, {
       method: 'POST',
     });
   }
@@ -321,8 +338,8 @@ class EnhancedApiService {
     appointment_date: string;
     appointment_time: string;
     doctor_id?: number;
-  }): Promise<ApiResponse<any>> {
-    return this.request('/bookings/check-availability', {
+  }): Promise<ApiResponse<AvailabilityCheckResult>> {
+    return this.request<AvailabilityCheckResult>('/bookings/check-availability', {
       method: 'POST',
       body: JSON.stringify(data),
     });

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin, Clock, Award, GraduationCap, ArrowLeft, Loader2 } from "lucide-react";
+import { MapPin, GraduationCap, ArrowLeft, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { apiService, Doctor as ApiDoctor } from "@/services/api";
@@ -12,28 +12,11 @@ import { toast } from "sonner";
 
 // Import doctor photos
 import doctorSarah from "@/assets/doctor-sarah.jpg";
-import doctorAhmad from "@/assets/doctor-ahmad.jpg";
-import doctorMei from "@/assets/doctor-mei.jpg";
-import doctorRaj from "@/assets/doctor-raj.jpg";
-import doctorLisa from "@/assets/doctor-lisa.jpg";
-import doctorDaniel from "@/assets/doctor-daniel.jpg";
-import doctorAminah from "@/assets/doctor-aminah.jpg";
-import doctorWong from "@/assets/doctor-wong.jpg";
-import doctorPriya from "@/assets/doctor-priya.jpg";
-import doctorFarid from "@/assets/doctor-farid.jpg";
-import doctorCatherine from "@/assets/doctor-catherine.jpg";
-import doctorMarcus from "@/assets/doctor-marcus.jpg";
 
 interface DoctorDetails extends ApiDoctor {
-  role?: string;
   image: string;
-  branch: string;
-  schedule: string;
-  bio: string;
-  experience?: string;
-  education?: string[];
-  certifications?: string[];
-  languages?: string[];
+  branch?: string;
+  bio?: string;
 }
 
 const DoctorProfile = () => {
@@ -55,39 +38,16 @@ const DoctorProfile = () => {
       try {
         setLoading(true);
         console.log('Fetching doctor with ID:', id);
-        const response = await apiService.getDoctor(id);
+        const response = await apiService.getDoctor(Number(id));
         console.log('Doctor API Response:', response);
         
         if (response.success && response.data) {
           // Map doctor photos
-          const doctorPhotos = [
-            doctorSarah, doctorAhmad, doctorMei, doctorRaj, doctorLisa,
-            doctorDaniel, doctorCatherine, doctorMarcus, doctorPriya, doctorFarid
-          ];
-          
-          const roles = [
-            "Medical Director", "Senior General Practitioner", "Consultant Physician",
-            "Specialist Doctor", "Family Medicine Doctor", "Internal Medicine Specialist",
-            "Pediatric Specialist", "Orthopedic Specialist", "Cardiology Specialist", "General Practitioner"
-          ];
-
           const doctorDetails: DoctorDetails = {
             ...response.data,
-            role: roles[response.data.id % roles.length],
-            image: doctorPhotos[response.data.id % doctorPhotos.length],
-            branch: response.data.branch?.name || 'Klinik Harmoni',
-            schedule: response.data.schedule || "Mon-Fri: 9:00 AM - 5:00 PM",
-            bio: response.data.bio || "Experienced healthcare professional dedicated to patient care.",
-            experience: "10+ years", // Default experience
-            education: [
-              "MBBS - University of Malaya",
-              "Master of Medicine - Universiti Kebangsaan Malaysia"
-            ],
-            certifications: [
-              "Fellow, Malaysian Medical Association",
-              "Certified Healthcare Professional"
-            ],
-            languages: ["English", "Bahasa Malaysia"]
+            image: response.data.profile_image || doctorSarah,
+            branch: response.data.branch?.name,
+            bio: response.data.bio,
           };
           
           console.log('Transformed doctor:', doctorDetails);
@@ -160,34 +120,20 @@ const DoctorProfile = () => {
                 <h1 className="text-2xl font-heading font-bold text-foreground mb-2">
                   {doctor.name}
                 </h1>
-                <Badge className="mb-2">{doctor.role}</Badge>
+                {doctor.title && <Badge className="mb-2">{doctor.title}</Badge>}
                 <p className="text-muted-foreground">{doctor.specialization}</p>
               </div>
 
               <div className="space-y-4 border-t border-border pt-4">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Location</p>
-                    <p className="text-sm text-muted-foreground">{doctor.branch}</p>
+                {doctor.branch && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Location</p>
+                      <p className="text-sm text-muted-foreground">{doctor.branch}</p>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Schedule</p>
-                    <p className="text-sm text-muted-foreground">{doctor.schedule}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Award className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Experience</p>
-                    <p className="text-sm text-muted-foreground">{doctor.experience}</p>
-                  </div>
-                </div>
+                )}
               </div>
 
               <Button className="w-full mt-6" size="lg" onClick={() => navigate("/#booking")}>
@@ -203,48 +149,37 @@ const DoctorProfile = () => {
               <p className="text-muted-foreground leading-relaxed">{doctor.bio}</p>
             </Card>
 
-            <Card className="p-8 shadow-card">
-              <h2 className="text-2xl font-heading font-bold text-foreground mb-4 flex items-center gap-2">
-                <GraduationCap className="h-6 w-6 text-primary" />
-                Education
-              </h2>
-              <ul className="space-y-2">
-                {doctor.education.map((edu, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-primary mt-1.5">•</span>
-                    <span className="text-muted-foreground">{edu}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
+            {doctor.qualifications && doctor.qualifications.length > 0 && (
+              <Card className="p-8 shadow-card">
+                <h2 className="text-2xl font-heading font-bold text-foreground mb-4 flex items-center gap-2">
+                  <GraduationCap className="h-6 w-6 text-primary" />
+                  Qualifications
+                </h2>
+                <ul className="space-y-2">
+                  {doctor.qualifications.map((qualification, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-primary mt-1.5">•</span>
+                      <span className="text-muted-foreground">{qualification}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
 
-            <Card className="p-8 shadow-card">
-              <h2 className="text-2xl font-heading font-bold text-foreground mb-4 flex items-center gap-2">
-                <Award className="h-6 w-6 text-primary" />
-                Certifications
-              </h2>
-              <ul className="space-y-2">
-                {doctor.certifications.map((cert, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-primary mt-1.5">•</span>
-                    <span className="text-muted-foreground">{cert}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-
-            <Card className="p-8 shadow-card">
-              <h2 className="text-2xl font-heading font-bold text-foreground mb-4">
-                Languages
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {doctor.languages.map((lang, index) => (
-                  <Badge key={index} variant="secondary" className="px-4 py-1.5">
-                    {lang}
-                  </Badge>
-                ))}
-              </div>
-            </Card>
+            {doctor.languages && doctor.languages.length > 0 && (
+              <Card className="p-8 shadow-card">
+                <h2 className="text-2xl font-heading font-bold text-foreground mb-4">
+                  Languages
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {doctor.languages.map((lang, index) => (
+                    <Badge key={index} variant="secondary" className="px-4 py-1.5">
+                      {lang}
+                    </Badge>
+                  ))}
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

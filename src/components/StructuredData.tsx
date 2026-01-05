@@ -1,9 +1,24 @@
 import { Helmet } from "react-helmet-async";
 import { useClinic } from "@/contexts/ClinicContext";
 
+type BreadcrumbItem = {
+  name: string;
+  url: string;
+};
+
+type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+type StructuredDataPayload = {
+  breadcrumbs?: BreadcrumbItem[];
+  faqs?: FaqItem[];
+};
+
 interface StructuredDataProps {
   type: 'organization' | 'medicalbusiness' | 'breadcrumb' | 'faq';
-  data?: any;
+  data?: StructuredDataPayload;
 }
 
 const StructuredData = ({ type, data }: StructuredDataProps) => {
@@ -102,7 +117,7 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
         return {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
-          "itemListElement": data?.breadcrumbs?.map((item: any, index: number) => ({
+          "itemListElement": data?.breadcrumbs?.map((item, index: number) => ({
             "@type": "ListItem",
             "position": index + 1,
             "name": item.name,
@@ -114,7 +129,7 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
         return {
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          "mainEntity": data?.faqs?.map((faq: any) => ({
+          "mainEntity": data?.faqs?.map((faq) => ({
             "@type": "Question",
             "name": faq.question,
             "acceptedAnswer": {

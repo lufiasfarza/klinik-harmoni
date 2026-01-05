@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MapPin, Clock, ArrowRight, Loader2 } from "lucide-react";
+import { MapPin, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { apiService, Doctor as ApiDoctor } from "@/services/api";
 import { toast } from "sonner";
@@ -19,11 +19,9 @@ import doctorPriya from "@/assets/doctor-priya.jpg";
 import doctorFarid from "@/assets/doctor-farid.jpg";
 
 interface Doctor extends ApiDoctor {
-  role?: string;
   image: string;
-  branch: string;
-  schedule: string;
-  bio: string;
+  branch?: string;
+  bio?: string;
 }
 
 const Doctors = () => {
@@ -44,25 +42,16 @@ const Doctors = () => {
         if (response.success && response.data) {
           // Transform API data to include UI-specific fields
           const transformedDoctors: Doctor[] = response.data.map((apiDoctor, index) => {
-            // Map doctor photos
             const doctorPhotos = [
               doctorSarah, doctorAhmad, doctorMei, doctorRaj, doctorLisa,
               doctorDaniel, doctorCatherine, doctorMarcus, doctorPriya, doctorFarid
             ];
-            
-            const roles = [
-              "Medical Director", "Senior General Practitioner", "Consultant Physician",
-              "Specialist Doctor", "Family Medicine Doctor", "Internal Medicine Specialist",
-              "Pediatric Specialist", "Orthopedic Specialist", "Cardiology Specialist", "General Practitioner"
-            ];
 
             return {
               ...apiDoctor,
-              role: roles[index % roles.length],
-              image: doctorPhotos[index % doctorPhotos.length],
-              branch: apiDoctor.branch?.name || 'Klinik Harmoni',
-              schedule: apiDoctor.schedule || "Mon-Fri: 9:00 AM - 5:00 PM",
-              bio: apiDoctor.bio || "Experienced healthcare professional dedicated to patient care."
+              image: apiDoctor.profile_image || doctorPhotos[index % doctorPhotos.length],
+              branch: apiDoctor.branch?.name,
+              bio: apiDoctor.bio,
             };
           });
           
@@ -133,7 +122,9 @@ const Doctors = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
-                  <Badge className="mb-2 bg-primary text-primary-foreground">{doctor.role}</Badge>
+                  {doctor.title && (
+                    <Badge className="mb-2 bg-primary text-primary-foreground">{doctor.title}</Badge>
+                  )}
                   <h3 className="text-xl font-heading font-semibold text-background mb-1">
                     {doctor.name}
                   </h3>
@@ -147,14 +138,12 @@ const Doctors = () => {
                 </p>
                 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-foreground">{doctor.branch}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-foreground">{doctor.schedule}</span>
-                  </div>
+                  {doctor.branch && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                      <span className="text-foreground">{doctor.branch}</span>
+                    </div>
+                  )}
                 </div>
 
                 <Button 

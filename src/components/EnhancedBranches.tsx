@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapPin, Phone, Clock, Star, Navigation, ExternalLink, Calendar, Users, Stethoscope } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,11 +21,7 @@ const Branches: React.FC<BranchesProps> = ({ onBranchSelect, onBookAppointment }
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
   const [expandedBranch, setExpandedBranch] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadBranches();
-  }, []);
-
-  const loadBranches = async () => {
+  const loadBranches = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -43,7 +39,11 @@ const Branches: React.FC<BranchesProps> = ({ onBranchSelect, onBookAppointment }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadBranches();
+  }, [loadBranches]);
 
   const handleBranchSelect = (branch: Branch) => {
     setSelectedBranch(branch);
