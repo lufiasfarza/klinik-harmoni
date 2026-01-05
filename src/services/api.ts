@@ -1,5 +1,5 @@
 // API Service Layer untuk Klinik Harmoni
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://app.klinikharmoni.my/api/public';
 
 export interface BookingData {
   branch_id: number;
@@ -15,44 +15,141 @@ export interface BookingData {
 export interface Branch {
   id: number;
   name: string;
+  slug: string;
   address: string;
+  city?: string;
+  state?: string;
   phone: string;
-  operating_hours: string;
+  email?: string;
+  whatsapp?: string;
+  operating_hours: Record<string, { open: string; close: string }>;
   image?: string;
+  gallery?: string[];
   latitude?: number;
   longitude?: number;
+  google_maps_url?: string;
+  waze_url?: string;
+  accepts_online_booking: boolean;
   is_active: boolean;
 }
 
 export interface Doctor {
-  id: string;
+  id: number;
   name: string;
+  title: string;
   specialization: string;
-  image: string;
-  bio: string;
-  branch: string;
-  schedule: string;
+  profile_image?: string;
+  bio?: string;
+  qualifications?: string[];
+  languages?: string[];
+  branch?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 export interface Service {
   id: number;
   name: string;
-  description?: string;
-  price: number;
-  min_price: number;
-  max_price: number;
-  price_range_display: string;
-  duration_minutes: number;
+  slug: string;
   category: string;
+  description?: string;
+  short_description?: string;
+  icon?: string;
+  featured_image?: string;
+  gallery?: string[];
+  price_from?: number;
+  price_to?: number;
+  price_range_display?: string;
+  duration_minutes?: number;
+  is_featured: boolean;
   is_active: boolean;
-  branches_offering_service: {
+  branches?: {
     id: number;
     name: string;
-    address: string;
-    phone: string;
-    price: number;
-    operating_hours: string;
+    custom_price?: number;
   }[];
+}
+
+export interface Promo {
+  id: number;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  code?: string;
+  discount_type?: 'percentage' | 'fixed';
+  discount_value?: number;
+  image?: string;
+  image_mobile?: string;
+  button_text?: string;
+  button_url?: string;
+  button_style: string;
+  text_color: string;
+  overlay_color: string;
+  overlay_opacity: number;
+  position: string;
+  starts_at?: string;
+  ends_at?: string;
+}
+
+export interface Testimonial {
+  id: number;
+  patient_name: string;
+  patient_title?: string;
+  patient_image?: string;
+  message: string;
+  rating: number;
+  is_verified: boolean;
+  service?: {
+    id: number;
+    name: string;
+  };
+  branch?: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  page_type: string;
+  content?: string;
+  featured_image?: string;
+  meta_title?: string;
+  meta_description?: string;
+  published_at?: string;
+}
+
+export interface Banner {
+  id: number;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  image?: string;
+  image_mobile?: string;
+  button_text?: string;
+  button_url?: string;
+  button_style: string;
+  text_color: string;
+  overlay_color: string;
+  overlay_opacity: number;
+  position: string;
+}
+
+export interface ClinicInfo {
+  name: string;
+  tagline?: string;
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
+  address?: string;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+  linkedin?: string;
 }
 
 export interface ApiResponse<T> {
@@ -70,7 +167,7 @@ class ApiService {
     try {
       const url = `${API_BASE_URL}${endpoint}`;
       console.log('API Request:', url);
-      
+
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
@@ -106,6 +203,55 @@ class ApiService {
     }
   }
 
+  // Banners API
+  async getBanners(): Promise<ApiResponse<Banner[]>> {
+    return this.request('/banners');
+  }
+
+  // Promos API
+  async getPromos(): Promise<ApiResponse<Promo[]>> {
+    return this.request('/promos');
+  }
+
+  async getFeaturedPromos(): Promise<ApiResponse<Promo[]>> {
+    return this.request('/promos/featured');
+  }
+
+  async getPromoByCode(code: string): Promise<ApiResponse<Promo>> {
+    return this.request(`/promos/${code}`);
+  }
+
+  // Testimonials API
+  async getTestimonials(params?: { featured?: boolean; limit?: number }): Promise<ApiResponse<Testimonial[]>> {
+    const queryParams = new URLSearchParams();
+    if (params?.featured) queryParams.append('featured', 'true');
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return this.request(`/testimonials${query}`);
+  }
+
+  async getFeaturedTestimonials(): Promise<ApiResponse<Testimonial[]>> {
+    return this.request('/testimonials/featured');
+  }
+
+  // Pages API
+  async getPages(): Promise<ApiResponse<Page[]>> {
+    return this.request('/pages');
+  }
+
+  async getPage(slug: string): Promise<ApiResponse<Page>> {
+    return this.request(`/pages/${slug}`);
+  }
+
+  async getPageByType(type: string): Promise<ApiResponse<Page>> {
+    return this.request(`/pages/type/${type}`);
+  }
+
+  // Clinic Info API
+  async getClinicInfo(): Promise<ApiResponse<ClinicInfo>> {
+    return this.request('/clinic-info');
+  }
+
   // Booking API
   async createBooking(bookingData: BookingData): Promise<ApiResponse<{ id: number; booking_id: string }>> {
     return this.request('/bookings', {
@@ -114,8 +260,14 @@ class ApiService {
     });
   }
 
-  async getBookings(): Promise<ApiResponse<BookingData[]>> {
-    return this.request('/bookings');
+  async getBookingByReference(reference: string): Promise<ApiResponse<BookingData>> {
+    return this.request(`/bookings/${reference}`);
+  }
+
+  async cancelBooking(reference: string): Promise<ApiResponse<void>> {
+    return this.request(`/bookings/${reference}/cancel`, {
+      method: 'POST',
+    });
   }
 
   // Branch API
@@ -123,21 +275,33 @@ class ApiService {
     return this.request('/branches');
   }
 
-  async getBranch(id: string): Promise<ApiResponse<Branch>> {
-    return this.request(`/branches/${id}`);
+  async getBranch(slug: string): Promise<ApiResponse<Branch>> {
+    return this.request(`/branches/${slug}`);
+  }
+
+  async getBranchDoctors(slug: string): Promise<ApiResponse<Doctor[]>> {
+    return this.request(`/branches/${slug}/doctors`);
+  }
+
+  async getBranchSlots(slug: string, date?: string): Promise<ApiResponse<string[]>> {
+    const query = date ? `?date=${date}` : '';
+    return this.request(`/branches/${slug}/slots${query}`);
+  }
+
+  async getBranchAvailableDates(slug: string): Promise<ApiResponse<string[]>> {
+    return this.request(`/branches/${slug}/available-dates`);
   }
 
   // Doctor API
-  async getDoctors(): Promise<ApiResponse<Doctor[]>> {
-    return this.request('/doctors');
+  async getDoctors(params?: { branch_id?: number }): Promise<ApiResponse<Doctor[]>> {
+    const queryParams = new URLSearchParams();
+    if (params?.branch_id) queryParams.append('branch_id', params.branch_id.toString());
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return this.request(`/doctors${query}`);
   }
 
-  async getDoctor(id: string): Promise<ApiResponse<Doctor>> {
+  async getDoctor(id: number): Promise<ApiResponse<Doctor>> {
     return this.request(`/doctors/${id}`);
-  }
-
-  async getDoctorsByBranch(branchId: string): Promise<ApiResponse<Doctor[]>> {
-    return this.request(`/branches/${branchId}/doctors`);
   }
 
   // Service API
@@ -145,16 +309,16 @@ class ApiService {
     return this.request('/services');
   }
 
-  async getService(id: string): Promise<ApiResponse<Service>> {
-    return this.request(`/services/${id}`);
+  async getFeaturedServices(): Promise<ApiResponse<Service[]>> {
+    return this.request('/services/featured');
   }
 
-  // Availability API
-  async getAvailableSlots(
-    branchId: number,
-    date: string
-  ): Promise<ApiResponse<string[]>> {
-    return this.request(`/availability?branch=${branchId}&date=${date}`);
+  async getServiceCategories(): Promise<ApiResponse<string[]>> {
+    return this.request('/services/categories');
+  }
+
+  async getService(slug: string): Promise<ApiResponse<Service>> {
+    return this.request(`/services/${slug}`);
   }
 
   // Contact API
@@ -168,14 +332,6 @@ class ApiService {
     return this.request('/contact', {
       method: 'POST',
       body: JSON.stringify(data),
-    });
-  }
-
-  // Newsletter API
-  async subscribeNewsletter(email: string): Promise<ApiResponse<{ id: string }>> {
-    return this.request('/newsletter/subscribe', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
     });
   }
 }
