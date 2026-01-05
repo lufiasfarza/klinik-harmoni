@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { apiService, Banner } from "@/services/api";
 import LazyImage from "@/components/LazyImage";
 import promoVaccines from "@/assets/promo-vaccines.jpg";
 import promoHealthCheck from "@/assets/promo-health-check.jpg";
@@ -18,39 +19,67 @@ interface Slide {
   badge?: string;
 }
 
-const HeroCarousel = () => {
-  const { t } = useTranslation();
-  const [currentSlide, setCurrentSlide] = useState(0);
+const defaultSlides: Slide[] = [
+  {
+    id: 1,
+    image: promoVaccines,
+    title: "Special Vaccine Package",
+    subtitle: "Protect your family with our comprehensive vaccination program. Limited time offer - 20% off all vaccines.",
+    cta: "Book Now",
+    ctaLink: "#booking",
+    badge: "Promo"
+  },
+  {
+    id: 2,
+    image: promoHealthCheck,
+    title: "Complete Health Check Bundle",
+    subtitle: "Full body screening with advanced diagnostics. Early detection for better health outcomes.",
+    cta: "See Packages",
+    ctaLink: "#services",
+    badge: "Popular"
+  },
+  {
+    id: 3,
+    image: promoPhysio,
+    title: "Premium Physiotherapy Sessions",
+    subtitle: "Expert rehabilitation and pain management. First session 30% off for new patients.",
+    cta: "Learn More",
+    ctaLink: "#services",
+    badge: "New"
+  }
+];
 
-  const slides: Slide[] = [
-    {
-      id: 1,
-      image: promoVaccines,
-      title: "Special Vaccine Package",
-      subtitle: "Protect your family with our comprehensive vaccination program. Limited time offer - 20% off all vaccines.",
-      cta: "Book Now",
-      ctaLink: "#booking",
-      badge: "Promo"
-    },
-    {
-      id: 2,
-      image: promoHealthCheck,
-      title: "Complete Health Check Bundle",
-      subtitle: "Full body screening with advanced diagnostics. Early detection for better health outcomes.",
-      cta: "See Packages",
-      ctaLink: "#services",
-      badge: "Popular"
-    },
-    {
-      id: 3,
-      image: promoPhysio,
-      title: "Premium Physiotherapy Sessions",
-      subtitle: "Expert rehabilitation and pain management. First session 30% off for new patients.",
-      cta: "Learn More",
-      ctaLink: "#services",
-      badge: "New"
-    }
-  ];
+const HeroCarousel = () => {
+  const { t, i18n } = useTranslation();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState<Slide[]>(defaultSlides);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await apiService.getBanners();
+        if (response.success && response.data && response.data.length > 0) {
+          const apiSlides: Slide[] = response.data.map((banner: Banner) => ({
+            id: banner.id,
+            image: banner.image || promoVaccines,
+            title: banner.title,
+            subtitle: banner.subtitle || banner.description || '',
+            cta: banner.button_text || t('hero.bookAppointment'),
+            ctaLink: banner.button_url || '#booking',
+            badge: undefined
+          }));
+          setSlides(apiSlides);
+        }
+      } catch (error) {
+        console.error('Failed to fetch banners:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, [t, i18n.language]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -89,7 +118,7 @@ const HeroCarousel = () => {
               alt={slide.title}
               className="w-full h-full object-cover"
             />
-            
+
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-transparent" />
 
@@ -109,8 +138,8 @@ const HeroCarousel = () => {
                     {slide.subtitle}
                   </p>
                   <a href={slide.ctaLink}>
-                    <Button 
-                      size="lg" 
+                    <Button
+                      size="lg"
                       className="bg-background text-primary hover:bg-background/90 hover:scale-105 transition-all shadow-elevated animate-scale-in"
                     >
                       {slide.cta}

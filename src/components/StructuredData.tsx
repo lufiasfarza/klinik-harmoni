@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { useClinic } from "@/contexts/ClinicContext";
 
 interface StructuredDataProps {
   type: 'organization' | 'medicalbusiness' | 'breadcrumb' | 'faq';
@@ -6,30 +7,38 @@ interface StructuredDataProps {
 }
 
 const StructuredData = ({ type, data }: StructuredDataProps) => {
+  const { clinicInfo } = useClinic();
+
   const getStructuredData = () => {
+    const clinicName = clinicInfo?.name || 'Klinik Harmoni';
+    const clinicEmail = clinicInfo?.email || 'info@klinikharmoni.my';
+    const clinicPhone = clinicInfo?.phone || '+60 3-1234 5678';
+    const clinicAddress = clinicInfo?.address || 'Kuala Lumpur, Malaysia';
+
     switch (type) {
       case 'organization':
         return {
           "@context": "https://schema.org",
           "@type": "MedicalBusiness",
-          "name": "Klinik Harmoni",
-          "description": "Professional healthcare services across Malaysia with experienced medical professionals and modern facilities.",
+          "name": clinicName,
+          "description": clinicInfo?.tagline || "Professional healthcare services across Malaysia with experienced medical professionals and modern facilities.",
           "url": "https://klinikharmoni.my",
           "logo": "https://klinikharmoni.my/logo.png",
           "image": "https://klinikharmoni.my/hero-image.jpg",
-          "telephone": "+60 3-1234 5678",
-          "email": "info@klinikharmoni.my",
+          "telephone": clinicPhone,
+          "email": clinicEmail,
           "address": {
             "@type": "PostalAddress",
             "addressCountry": "MY",
+            "streetAddress": clinicAddress,
             "addressLocality": "Kuala Lumpur",
             "addressRegion": "Kuala Lumpur"
           },
           "sameAs": [
-            "https://www.facebook.com/elitewellness",
-            "https://www.instagram.com/elitewellness",
-            "https://www.linkedin.com/company/elitewellness"
-          ],
+            clinicInfo?.facebook,
+            clinicInfo?.instagram,
+            clinicInfo?.linkedin
+          ].filter(Boolean),
           "hasOfferCatalog": {
             "@type": "OfferCatalog",
             "name": "Healthcare Services",
@@ -38,16 +47,16 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
                 "@type": "Offer",
                 "itemOffered": {
                   "@type": "MedicalProcedure",
-                  "name": "Physiotherapy",
-                  "description": "Professional physiotherapy services"
+                  "name": "General Consultation",
+                  "description": "Professional medical consultation services"
                 }
               },
               {
                 "@type": "Offer",
                 "itemOffered": {
                   "@type": "MedicalProcedure",
-                  "name": "Therapeutic Massage",
-                  "description": "Therapeutic massage therapy"
+                  "name": "Health Screening",
+                  "description": "Comprehensive health screening packages"
                 }
               },
               {
@@ -61,10 +70,9 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
             ]
           },
           "medicalSpecialty": [
-            "Physiotherapy",
             "General Practice",
-            "Sports Medicine",
-            "Rehabilitation"
+            "Family Medicine",
+            "Occupational Health"
           ]
         };
 
@@ -72,21 +80,22 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
         return {
           "@context": "https://schema.org",
           "@type": "MedicalBusiness",
-          "name": "Elite Wellness",
-          "description": "Award-winning healthcare excellence with 13 branches nationwide",
-          "url": "https://elitewellness.com",
-          "telephone": "+60 3-1234 5678",
-          "email": "info@elitewellness.com",
+          "name": clinicName,
+          "description": clinicInfo?.tagline || "Professional healthcare excellence",
+          "url": "https://klinikharmoni.my",
+          "telephone": clinicPhone,
+          "email": clinicEmail,
           "address": {
             "@type": "PostalAddress",
             "addressCountry": "MY",
+            "streetAddress": clinicAddress,
             "addressLocality": "Kuala Lumpur"
           },
-          "openingHours": "Mo-Fr 09:00-18:00,Sa 09:00-13:00",
+          "openingHours": "Mo-Su 00:00-23:59",
           "priceRange": "$$",
           "currenciesAccepted": "MYR",
           "paymentAccepted": "Cash, Credit Card, Insurance",
-          "medicalSpecialty": "Physiotherapy, General Practice, Sports Medicine"
+          "medicalSpecialty": "General Practice, Family Medicine, Occupational Health"
         };
 
       case 'breadcrumb':

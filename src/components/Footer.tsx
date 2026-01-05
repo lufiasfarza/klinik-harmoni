@@ -1,9 +1,11 @@
 import { MapPin, Phone, Mail, Facebook, Instagram, Linkedin } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useClinic } from "@/contexts/ClinicContext";
 
 const Footer = () => {
   const { t } = useTranslation();
-  
+  const { clinicInfo } = useClinic();
+
   return (
     <footer className="bg-foreground text-background py-16">
       <div className="container mx-auto px-4">
@@ -12,11 +14,17 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center">
-                <span className="text-xl font-heading text-background">E</span>
+                <span className="text-xl font-heading text-background">
+                  {clinicInfo?.name?.charAt(0) || 'K'}
+                </span>
               </div>
               <div>
-                <h3 className="font-heading font-semibold text-lg">Elite Wellness</h3>
-                <p className="text-xs text-background/70">{t('footer.tagline')}</p>
+                <h3 className="font-heading font-semibold text-lg">
+                  {clinicInfo?.name || 'Klinik Harmoni'}
+                </h3>
+                <p className="text-xs text-background/70">
+                  {clinicInfo?.tagline || t('footer.tagline')}
+                </p>
               </div>
             </div>
             <p className="text-sm text-background/80 leading-relaxed">
@@ -54,33 +62,57 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-background/80">{t('footer.address')}</p>
+                <p className="text-sm text-background/80">
+                  {clinicInfo?.address || t('footer.address')}
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-primary flex-shrink-0" />
-                <a href="tel:+60321428888" className="text-sm text-background/80 hover:text-primary transition-colors">
-                  {t('footer.phone')}
+                <a
+                  href={`tel:${clinicInfo?.phone || '+60321428888'}`}
+                  className="text-sm text-background/80 hover:text-primary transition-colors"
+                >
+                  {clinicInfo?.phone || t('footer.phone')}
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0" />
-                <a href="mailto:info@elitewellness.my" className="text-sm text-background/80 hover:text-primary transition-colors">
-                  {t('footer.email')}
+                <a
+                  href={`mailto:${clinicInfo?.email || 'info@klinikharmoni.my'}`}
+                  className="text-sm text-background/80 hover:text-primary transition-colors"
+                >
+                  {clinicInfo?.email || t('footer.email')}
                 </a>
               </div>
             </div>
 
             {/* Social Media */}
             <div className="flex gap-3 mt-6">
-              <a href="#" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                <Instagram className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                <Linkedin className="h-4 w-4" />
-              </a>
+              {clinicInfo?.facebook && (
+                <a href={clinicInfo.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
+              {clinicInfo?.instagram && (
+                <a href={clinicInfo.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
+              {clinicInfo?.linkedin && (
+                <a href={clinicInfo.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              )}
+              {!clinicInfo?.facebook && !clinicInfo?.instagram && !clinicInfo?.linkedin && (
+                <>
+                  <a href="#" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                    <Facebook className="h-4 w-4" />
+                  </a>
+                  <a href="#" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+                    <Instagram className="h-4 w-4" />
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -89,7 +121,7 @@ const Footer = () => {
         <div className="border-t border-background/20 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-background/60">
-              {t('footer.rights')}
+              © {new Date().getFullYear()} {clinicInfo?.name || 'Klinik Harmoni'}. {t('footer.allRightsReserved', 'All rights reserved.')}
             </p>
             <div className="flex gap-6">
               <a href="#" className="text-sm text-background/60 hover:text-primary transition-colors">{t('footer.privacy')}</a>

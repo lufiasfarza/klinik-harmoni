@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Menu, X, Phone, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { useClinic } from "@/contexts/ClinicContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,7 @@ import {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t, i18n } = useTranslation();
+  const { clinicInfo } = useClinic();
 
   const navigation = [
     { name: t('nav.home'), href: "#home" },
@@ -32,11 +34,17 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center">
-              <span className="text-2xl font-heading text-primary-foreground">E</span>
+              <span className="text-2xl font-heading text-primary-foreground">
+                {clinicInfo?.name?.charAt(0) || 'K'}
+              </span>
             </div>
             <div>
-              <h1 className="text-xl font-heading font-semibold text-foreground">Elite Wellness</h1>
-              <p className="text-xs text-muted-foreground">Professional Healthcare</p>
+              <h1 className="text-xl font-heading font-semibold text-foreground">
+                {clinicInfo?.name || 'Klinik Harmoni'}
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                {clinicInfo?.tagline || 'Professional Healthcare'}
+              </p>
             </div>
           </div>
 

@@ -11,12 +11,15 @@ import Branches from "@/components/Branches";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import DynamicHead from "@/components/DynamicHead";
 import { useMobile } from "@/hooks/use-mobile";
+import { useClinic } from "@/contexts/ClinicContext";
 
 const Index = () => {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [showMobileBooking, setShowMobileBooking] = useState(false);
   const isMobile = useMobile();
+  const { clinicInfo } = useClinic();
 
   const handleBookingClick = () => {
     if (isMobile) {
@@ -34,6 +37,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <DynamicHead
+        description={clinicInfo?.tagline || "Perkhidmatan kesihatan profesional dengan cawangan di seluruh Malaysia"}
+      />
       <Navbar />
       <HeroCarousel />
       <Stats />
