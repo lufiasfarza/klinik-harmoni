@@ -1,9 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { apiService, Testimonial as ApiTestimonial } from "@/services/api";
 
-// Import patient photos
+// Import fallback patient photos
 import patientSarah from "@/assets/patient-sarah.jpg";
 import patientRahman from "@/assets/patient-rahman.jpg";
 import patientMichelle from "@/assets/patient-michelle.jpg";
@@ -12,63 +13,108 @@ import patientJames from "@/assets/patient-james.jpg";
 interface Testimonial {
   id: number;
   name: string;
-  location: string;
+  title: string;
   rating: number;
   text: string;
-  service: string;
+  service?: string;
   photo: string;
 }
 
-const testimonialsData: Testimonial[] = [
+// Fallback data if API returns empty
+const fallbackTestimonials: Testimonial[] = [
   {
     id: 1,
     name: "Sarah Lee",
-    location: "Kuala Lumpur",
+    title: "Kuala Lumpur",
     rating: 5,
-    text: "Excellent physiotherapy service! Dr. Alicia helped me recover from my sports injury much faster than expected. The facilities are modern and the staff is very professional.",
-    service: "Physiotherapy",
+    text: "Excellent service! The doctors are very professional and caring. I always feel comfortable and well taken care of. Highly recommended!",
+    service: "General Consultation",
     photo: patientSarah
   },
   {
     id: 2,
     name: "Rahman Abdullah",
-    location: "Petaling Jaya",
+    title: "Petaling Jaya",
     rating: 5,
-    text: "Best therapeutic massage I've ever had. The therapists are skilled and the ambiance is so relaxing. I come here monthly for stress relief.",
-    service: "Therapeutic Massage",
+    text: "Best clinic experience I've ever had. The staff are skilled and friendly. I come here for all my family's healthcare needs.",
+    service: "Health Screening",
     photo: patientRahman
   },
   {
     id: 3,
     name: "Michelle Tan",
-    location: "Bangsar",
+    title: "Bangsar",
     rating: 5,
-    text: "Very thorough medical consultation. The doctor took time to understand my concerns and provided a comprehensive treatment plan. Highly recommended!",
+    text: "Very thorough medical consultation. The doctor took time to understand my concerns and provided a comprehensive treatment plan.",
     service: "Medical Consultation",
     photo: patientMichelle
   },
   {
     id: 4,
     name: "James Wong",
-    location: "Mont Kiara",
+    title: "Mont Kiara",
     rating: 5,
-    text: "The booking system is so convenient and the clinic is always clean and well-maintained. Staff are friendly and professional throughout my visit.",
-    service: "Physiotherapy",
+    text: "The booking system is so convenient and the clinic is always clean and well-maintained. Professional service throughout.",
+    service: "Vaccination",
     photo: patientJames
   }
 ];
 
+const fallbackPhotos = [patientSarah, patientRahman, patientMichelle, patientJames];
+
 const Testimonials = () => {
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(fallbackTestimonials);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await apiService.getFeaturedTestimonials();
+        if (response.success && response.data && response.data.length > 0) {
+          const transformedTestimonials: Testimonial[] = response.data.map((t: ApiTestimonial, index: number) => ({
+            id: t.id,
+            name: t.patient_name,
+            title: t.patient_title || '',
+            rating: t.rating,
+            text: t.message,
+            service: t.service?.name,
+            photo: t.patient_image || fallbackPhotos[index % fallbackPhotos.length]
+          }));
+          setTestimonials(transformedTestimonials);
+        }
+        // If API returns empty, keep fallback data
+      } catch (error) {
+        console.error('Failed to fetch testimonials:', error);
+        // Keep fallback data on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonialsData.length);
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [testimonials.length]);
+
+  if (loading) {
+    return (
+      <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-24 bg-gradient-to-b from-background to-muted/30">
@@ -88,8 +134,8 @@ const Testimonials = () => {
 
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
-            {testimonialsData.map((testimonial, index) => (
-              <Card 
+            {testimonials.map((testimonial, index) => (
+              <Card
                 key={testimonial.id}
                 className={`p-8 transition-all duration-500 hover-lift bg-card border-0 shadow-card relative overflow-hidden ${
                   index === currentIndex ? "ring-2 ring-primary/50 shadow-elevated" : ""
@@ -116,8 +162,8 @@ const Testimonials = () => {
                 {/* Patient Info with Photo */}
                 <div className="flex items-center gap-4 pt-6 border-t border-border">
                   <div className="relative">
-                    <img 
-                      src={testimonial.photo} 
+                    <img
+                      src={testimonial.photo}
                       alt={testimonial.name}
                       className="w-16 h-16 rounded-full object-cover border-2 border-primary/20 shadow-soft"
                     />
@@ -127,13 +173,15 @@ const Testimonials = () => {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-foreground text-base">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.title}</p>
                   </div>
-                  <div className="text-right">
-                    <div className="inline-flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full">
-                      <p className="text-xs font-medium text-primary">{testimonial.service}</p>
+                  {testimonial.service && (
+                    <div className="text-right">
+                      <div className="inline-flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full">
+                        <p className="text-xs font-medium text-primary">{testimonial.service}</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </Card>
             ))}
@@ -141,7 +189,7 @@ const Testimonials = () => {
 
           {/* Carousel Indicators */}
           <div className="flex justify-center gap-3 mt-12">
-            {testimonialsData.map((_, index) => (
+            {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
