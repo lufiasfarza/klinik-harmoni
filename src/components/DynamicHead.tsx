@@ -11,12 +11,14 @@ const DynamicHead = ({ title, description }: DynamicHeadProps) => {
 
   const clinicName = clinicInfo?.name || 'Klinik Harmoni';
   const defaultDescription = clinicInfo?.tagline || 'Professional Healthcare Excellence';
+  const seoTitle = clinicInfo?.seo?.title;
+  const seoDescription = clinicInfo?.seo?.description;
 
   const pageTitle = title
     ? `${title} | ${clinicName}`
-    : `${clinicName} - ${defaultDescription}`;
+    : seoTitle || `${clinicName} - ${defaultDescription}`;
 
-  const pageDescription = description || defaultDescription;
+  const pageDescription = description || seoDescription || defaultDescription;
 
   return (
     <Helmet>

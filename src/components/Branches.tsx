@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Phone, Clock, Search, Navigation, Map, Loader2 } from "lucide-react";
 import { MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiService, Branch as ApiBranch } from "@/services/api";
+import { apiService, Branch as ApiBranch, getStorageUrl } from "@/services/api";
 import { toast } from "sonner";
 
 // Import clinic photos
@@ -113,7 +113,7 @@ const Branches = () => {
               hours: parseHours(apiBranch.operating_hours),
               mapUrl: apiBranch.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(apiBranch.address || '')}`,
               wazeUrl: apiBranch.waze_url || `https://waze.com/ul?q=${encodeURIComponent(apiBranch.address || '')}`,
-              clinicPhoto: clinicPhotos[index % clinicPhotos.length]
+              clinicPhoto: getStorageUrl(apiBranch.featured_image) || clinicPhotos[index % clinicPhotos.length]
             };
           });
           

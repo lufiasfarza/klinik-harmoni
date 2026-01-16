@@ -1,10 +1,11 @@
 import Navbar from "@/components/Navbar";
 import HeroCarousel from "@/components/HeroCarousel";
 import FloatingBookingButton from "@/components/FloatingBookingButton";
-import Stats from "@/components/Stats";
+import TrustStrip from "@/components/TrustStrip";
 import Services from "@/components/Services";
 import Doctors from "@/components/Doctors";
 import Branches from "@/components/Branches";
+import NearestBranch from "@/components/NearestBranch";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -29,10 +30,11 @@ const Index = () => {
       />
       <Navbar />
       <HeroCarousel />
-      <Stats />
+      <TrustStrip />
       <Services />
       <Doctors />
       <Branches />
+      <NearestBranch />
       <Booking />
       <Testimonials />
       <Footer />

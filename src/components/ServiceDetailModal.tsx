@@ -53,7 +53,7 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
         <div className="py-6 space-y-6">
           {/* Price */}
           <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Price Range</div>
+            <div className="text-sm text-muted-foreground mb-1">{t("services.priceRange")}</div>
             <div className="text-3xl font-bold text-primary">
               {service.show_price && service.price_range ? service.price_range : t("services.contactForPrice")}
             </div>
@@ -62,7 +62,7 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
           {/* What's Included */}
           {service.tags && service.tags.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-foreground">What's Included:</h3>
+              <h3 className="text-lg font-semibold text-foreground">{t("services.whatsIncluded")}</h3>
               <div className="space-y-2">
                 {service.tags.map((tag) => (
                   <div key={tag} className="flex items-center gap-3">
@@ -79,7 +79,7 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
-                Available at {service.branches.length} Branch{service.branches.length !== 1 ? "es" : ""}
+                {t("services.availableAt")} {service.branches.length} {service.branches.length !== 1 ? t("services.branches") : t("services.branch")}
               </h3>
 
               <div className="space-y-3 max-h-60 overflow-y-auto">
@@ -114,7 +114,7 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
             disabled={isLoading}
           >
             <Calendar className="h-4 w-4 mr-2" />
-            {isLoading ? "Loading..." : "Book Appointment"}
+            {isLoading ? t("services.loadingAction") : t("services.bookAppointment")}
           </Button>
           <Button 
             onClick={onClose} 
@@ -122,7 +122,7 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
             size="lg"
             className="px-8"
           >
-            Close
+            {t("services.close")}
           </Button>
         </div>
       </DialogContent>

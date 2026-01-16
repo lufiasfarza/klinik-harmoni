@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MapPin, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { apiService, Doctor as ApiDoctor } from "@/services/api";
+import { apiService, Doctor as ApiDoctor, getStorageUrl } from "@/services/api";
 import { toast } from "sonner";
 import doctorSarah from "@/assets/doctor-sarah.jpg";
 import doctorAhmad from "@/assets/doctor-ahmad.jpg";
@@ -49,7 +49,7 @@ const Doctors = () => {
 
             return {
               ...apiDoctor,
-              image: apiDoctor.profile_image || doctorPhotos[index % doctorPhotos.length],
+              image: getStorageUrl(apiDoctor.profile_image) || doctorPhotos[index % doctorPhotos.length],
               branch: apiDoctor.branch?.name,
               bio: apiDoctor.bio,
             };

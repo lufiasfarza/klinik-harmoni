@@ -71,54 +71,54 @@ const Footer = () => {
               <div className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-background/80">
-                  {clinicInfo?.address || t('footer.address')}
+                  {clinicInfo?.contact?.address || t('footer.address')}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-primary flex-shrink-0" />
                 <a
-                  href={`tel:${clinicInfo?.phone || '+60321428888'}`}
+                  href={`tel:${clinicInfo?.contact?.phone || '+60321428888'}`}
                   className="text-sm text-background/80 hover:text-primary transition-colors"
                 >
-                  {clinicInfo?.phone || t('footer.phone')}
+                  {clinicInfo?.contact?.phone || t('footer.phone')}
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0" />
                 <a
-                  href={`mailto:${clinicInfo?.email || 'info@klinikharmoni.my'}`}
+                  href={`mailto:${clinicInfo?.contact?.email || 'info@klinikharmoni.my'}`}
                   className="text-sm text-background/80 hover:text-primary transition-colors"
                 >
-                  {clinicInfo?.email || t('footer.email')}
+                  {clinicInfo?.contact?.email || t('footer.email')}
                 </a>
               </div>
             </div>
 
             {/* Social Media */}
             <div className="flex gap-3 mt-6">
-              {clinicInfo?.facebook && (
-                <a href={clinicInfo.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+              {clinicInfo?.social?.facebook && (
+                <a href={clinicInfo?.social?.facebook} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
                   <Facebook className="h-4 w-4" />
                 </a>
               )}
-              {clinicInfo?.instagram && (
-                <a href={clinicInfo.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+              {clinicInfo?.social?.instagram && (
+                <a href={clinicInfo?.social?.instagram} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
                   <Instagram className="h-4 w-4" />
                 </a>
               )}
-              {clinicInfo?.tiktok && (
-                <a href={clinicInfo.tiktok} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+              {clinicInfo?.social?.tiktok && (
+                <a href={clinicInfo?.social?.tiktok} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                   </svg>
                 </a>
               )}
-              {clinicInfo?.linkedin && (
-                <a href={clinicInfo.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
+              {clinicInfo?.social?.linkedin && (
+                <a href={clinicInfo?.social?.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
                   <Linkedin className="h-4 w-4" />
                 </a>
               )}
-              {!clinicInfo?.facebook && !clinicInfo?.instagram && !clinicInfo?.tiktok && !clinicInfo?.linkedin && (
+              {!clinicInfo?.social?.facebook && !clinicInfo?.social?.instagram && !clinicInfo?.social?.tiktok && !clinicInfo?.social?.linkedin && (
                 <>
                   <a href="#" className="w-9 h-9 bg-background/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
                     <Facebook className="h-4 w-4" />

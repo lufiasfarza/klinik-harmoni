@@ -1,5 +1,17 @@
 // API Service Layer untuk Klinik Harmoni
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://app.klinikharmoni.my/api/public';
+const STORAGE_BASE_URL = import.meta.env.VITE_STORAGE_URL || 'https://app.klinikharmoni.my/storage';
+
+// Helper function to get full storage URL for images
+export const getStorageUrl = (path: string | null | undefined): string | undefined => {
+  if (!path) return undefined;
+  // If already a full URL, return as is
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  // Otherwise prepend storage base URL
+  return `${STORAGE_BASE_URL}/${path}`;
+};
 
 export interface BookingData {
   branch_id: number;
@@ -151,20 +163,52 @@ export interface Banner {
   position: string;
 }
 
+export interface ClinicTrustMetric {
+  label: string;
+  value: string;
+  suffix?: string | null;
+}
+
+export interface ClinicTrust {
+  metrics?: ClinicTrustMetric[];
+  badges?: string[];
+  partners?: string[];
+}
+
+export interface ClinicContact {
+  phone?: string | null;
+  email?: string | null;
+  whatsapp?: string | null;
+  address?: string | null;
+}
+
+export interface ClinicSocial {
+  facebook?: string | null;
+  instagram?: string | null;
+  tiktok?: string | null;
+  youtube?: string | null;
+  linkedin?: string | null;
+}
+
 export interface ClinicInfo {
   name: string;
-  tagline?: string;
-  logo?: string;
-  email?: string;
-  phone?: string;
-  whatsapp?: string;
-  address?: string;
-  facebook?: string;
-  instagram?: string;
-  twitter?: string;
-  linkedin?: string;
-  tiktok?: string;
-  youtube?: string;
+  tagline?: string | null;
+  logo?: string | null;
+  favicon?: string | null;
+  contact?: ClinicContact;
+  operating_hours?: Record<string, string> | null;
+  social?: ClinicSocial;
+  about?: {
+    mission?: string | null;
+    vision?: string | null;
+    description?: string | null;
+  };
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    keywords?: string | null;
+  };
+  trust?: ClinicTrust;
 }
 
 export interface ApiResponse<T> {

@@ -10,11 +10,24 @@ interface ClinicContextType {
 
 const defaultClinicInfo: ClinicInfo = {
   name: 'Klinik Harmoni',
-  tagline: 'Professional Healthcare Excellence',
-  email: 'info@klinikharmoni.my',
-  phone: '+603 2142 8888',
-  whatsapp: '+60321428888',
-  address: 'Kuala Lumpur, Malaysia',
+  tagline: 'Kesihatan Anda Keutamaan Kami',
+  contact: {
+    email: 'info@klinikharmoni.my',
+    phone: '+603 2142 8888',
+    whatsapp: '60123456789',
+    address: 'Kuala Lumpur, Malaysia',
+  },
+  social: {},
+  trust: {
+    metrics: [
+      { label: 'Cawangan', value: '13' },
+      { label: 'Doktor Berdaftar', value: '50+' },
+      { label: 'Pesakit Dilayan', value: '10K+' },
+      { label: 'Rating Purata', value: '4.8/5' },
+    ],
+    badges: ['Berlesen & Berdaftar MOH', 'Pematuhan PDPA', 'Panel Insurans', 'Sokongan WhatsApp'],
+    partners: [],
+  },
 };
 
 const ClinicContext = createContext<ClinicContextType>({
@@ -47,30 +60,33 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
       setError(null);
       const response = await apiService.getClinicInfo();
       if (response.success && response.data) {
-        // Map API response to ClinicInfo interface
-        // API returns nested structure: { contact: {...}, social: {...} }
-        // Frontend expects flat structure: { phone, email, facebook, instagram, ... }
-        const apiData = response.data as Record<string, unknown>;
-        const contact = (apiData.contact as Record<string, string>) || {};
-        const social = (apiData.social as Record<string, string>) || {};
-
+        const data = response.data;
         setClinicInfo({
           ...defaultClinicInfo,
-          name: (apiData.name as string) || defaultClinicInfo.name,
-          tagline: (apiData.tagline as string) || defaultClinicInfo.tagline,
-          logo: apiData.logo as string,
-          // Flatten contact info
-          phone: contact.phone || defaultClinicInfo.phone,
-          email: contact.email || defaultClinicInfo.email,
-          whatsapp: contact.whatsapp || defaultClinicInfo.whatsapp,
-          address: contact.address || defaultClinicInfo.address,
-          // Flatten social media
-          facebook: social.facebook,
-          instagram: social.instagram,
-          twitter: social.twitter,
-          linkedin: social.linkedin,
-          tiktok: social.tiktok,
-          youtube: social.youtube,
+          ...data,
+          contact: {
+            ...defaultClinicInfo.contact,
+            ...data.contact,
+          },
+          social: {
+            ...defaultClinicInfo.social,
+            ...data.social,
+          },
+          about: {
+            ...defaultClinicInfo.about,
+            ...data.about,
+          },
+          seo: {
+            ...defaultClinicInfo.seo,
+            ...data.seo,
+          },
+          trust: {
+            ...defaultClinicInfo.trust,
+            ...data.trust,
+            metrics: data.trust?.metrics?.length ? data.trust.metrics : defaultClinicInfo.trust?.metrics,
+            badges: data.trust?.badges?.length ? data.trust.badges : defaultClinicInfo.trust?.badges,
+            partners: data.trust?.partners?.length ? data.trust.partners : defaultClinicInfo.trust?.partners,
+          },
         });
       }
     } catch (err) {

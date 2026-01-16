@@ -1,14 +1,20 @@
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useClinic } from "@/contexts/ClinicContext";
 
 const WhatsAppButton = () => {
-  const phoneNumber = "60123456789"; // Replace with actual clinic WhatsApp number
+  const { clinicInfo } = useClinic();
+  const phoneNumber = (clinicInfo?.contact?.whatsapp || "60123456789").replace(/\D/g, "");
   const message = "Hello! I would like to inquire about your services.";
   
   const handleClick = () => {
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
+
+  if (!phoneNumber) {
+    return null;
+  }
 
   return (
     <Button

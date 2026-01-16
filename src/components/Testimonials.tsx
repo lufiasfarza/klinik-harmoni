@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Star, Quote, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { apiService, Testimonial as ApiTestimonial } from "@/services/api";
+import { apiService, Testimonial as ApiTestimonial, getStorageUrl } from "@/services/api";
 
 // Import fallback patient photos
 import patientSarah from "@/assets/patient-sarah.jpg";
@@ -80,7 +80,7 @@ const Testimonials = () => {
             rating: t.rating,
             text: t.message,
             service: t.service?.name,
-            photo: t.patient_image || fallbackPhotos[index % fallbackPhotos.length]
+            photo: getStorageUrl(t.patient_image) || fallbackPhotos[index % fallbackPhotos.length]
           }));
           setTestimonials(transformedTestimonials);
         }

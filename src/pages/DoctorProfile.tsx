@@ -7,7 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MapPin, GraduationCap, ArrowLeft, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { apiService, Doctor as ApiDoctor } from "@/services/api";
+import { apiService, Doctor as ApiDoctor, getStorageUrl } from "@/services/api";
 import { toast } from "sonner";
 
 // Import doctor photos
@@ -42,10 +42,10 @@ const DoctorProfile = () => {
         console.log('Doctor API Response:', response);
         
         if (response.success && response.data) {
-          // Map doctor photos
+          // Map doctor photos - use getStorageUrl to build full URL
           const doctorDetails: DoctorDetails = {
             ...response.data,
-            image: response.data.profile_image || doctorSarah,
+            image: getStorageUrl(response.data.profile_image) || doctorSarah,
             branch: response.data.branch?.name,
             bio: response.data.bio,
           };

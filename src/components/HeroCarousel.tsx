@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiService, Banner } from "@/services/api";
+import { apiService, Banner, getStorageUrl } from "@/services/api";
 import LazyImage from "@/components/LazyImage";
 import promoVaccines from "@/assets/promo-vaccines.jpg";
 import promoHealthCheck from "@/assets/promo-health-check.jpg";
@@ -62,7 +62,7 @@ const HeroCarousel = () => {
         if (response.success && response.data && response.data.length > 0) {
           const apiSlides: Slide[] = response.data.map((banner: Banner) => ({
             id: banner.id,
-            image: banner.image || promoVaccines,
+            image: getStorageUrl(banner.image) || promoVaccines,
             title: banner.title,
             subtitle: banner.subtitle || banner.description || '',
             cta: banner.button_text || t('hero.bookAppointment'),

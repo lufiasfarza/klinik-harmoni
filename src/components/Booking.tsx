@@ -49,6 +49,7 @@ const Booking = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const selectedBranch = branches.find((branch) => branch.id === formData.branch_id);
 
@@ -201,6 +202,7 @@ const Booking = () => {
         });
         setDate(undefined);
         setErrors({});
+        setCurrentStep(1);
       } else {
         toast.error(handleApiError(response));
         if (response.errors) {
@@ -233,6 +235,242 @@ const Booking = () => {
     }
   };
 
+  const steps = [
+    { id: 1, title: t("booking.step1Title"), description: t("booking.step1Description") },
+    { id: 2, title: t("booking.step2Title"), description: t("booking.step2Description") },
+    { id: 3, title: t("booking.step3Title"), description: t("booking.step3Description") },
+  ];
+
+  const validateStep = (step: number) => {
+    const nextErrors: Record<string, string> = {};
+
+    if (step === 1) {
+      if (!formData.branch_id) {
+        nextErrors.branch_id = t("booking.errors.branch");
+      }
+      if (!formData.service_id) {
+        nextErrors.service_id = t("booking.errors.service");
+      }
+    }
+
+    if (step === 2) {
+      if (!date) {
+        nextErrors.date = t("booking.errors.date");
+      }
+      if (!formData.time) {
+        nextErrors.time = t("booking.errors.time");
+      }
+    }
+
+    if (step === 3) {
+      if (!formData.patient_name.trim()) {
+        nextErrors.patient_name = t("booking.errors.name");
+      }
+      if (!formData.patient_ic.trim()) {
+        nextErrors.patient_ic = t("booking.errors.ic");
+      }
+      if (!formData.contact_phone.trim()) {
+        nextErrors.contact_phone = t("booking.errors.phone");
+      }
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleNextStep = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep((prev) => Math.min(3, prev + 1));
+    }
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep((prev) => Math.max(1, prev - 1));
+  };
+
+  const renderStep1 = () => (
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="space-y-2">
+        <Label htmlFor="branch">{t("booking.branch")} *</Label>
+        <Select value={formData.branch_id.toString()} onValueChange={(value) => handleChange("branch_id", parseInt(value))}>
+          <SelectTrigger className={errors.branch_id ? "border-destructive" : ""}>
+            <SelectValue placeholder={loading ? t("booking.loadingBranches") : t("booking.selectBranch")} />
+          </SelectTrigger>
+          <SelectContent>
+            {branches.map((branch) => (
+              <SelectItem key={branch.id} value={branch.id.toString()}>
+                {branch.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.branch_id && <p className="text-sm text-destructive">{errors.branch_id}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="service">{t("booking.service")} *</Label>
+        <Select value={formData.service_id.toString()} onValueChange={(value) => handleChange("service_id", parseInt(value))}>
+          <SelectTrigger className={errors.service_id ? "border-destructive" : ""}>
+            <SelectValue placeholder={loading ? t("booking.loadingServices") : t("booking.selectService")} />
+          </SelectTrigger>
+          <SelectContent>
+            {services.map((service) => (
+              <SelectItem key={service.id} value={service.id.toString()}>
+                {service.name}
+                {service.show_price && service.price_range ? ` - ${service.price_range}` : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.service_id && <p className="text-sm text-destructive">{errors.service_id}</p>}
+      </div>
+
+      <div className="space-y-2 md:col-span-2">
+        <Label htmlFor="doctor">{t("booking.doctor")}</Label>
+        <Select value={formData.doctor_id.toString()} onValueChange={(value) => handleChange("doctor_id", parseInt(value, 10))}>
+          <SelectTrigger className={errors.doctor_id ? "border-destructive" : ""}>
+            <SelectValue placeholder={t("booking.selectDoctor")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">{t("booking.anyDoctor")}</SelectItem>
+            {doctors.map((doctor) => (
+              <SelectItem key={doctor.id} value={doctor.id.toString()}>
+                {doctor.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.doctor_id && <p className="text-sm text-destructive">{errors.doctor_id}</p>}
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="space-y-2">
+        <Label>{t("booking.date")} *</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !date && "text-muted-foreground",
+                errors.date && "border-destructive"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP") : <span>{t("booking.pickDate")}</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              disabled={(date) => date < new Date()}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
+        {errors.date && <p className="text-sm text-destructive">{errors.date}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="time">{t("booking.time")} *</Label>
+        <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+          <SelectTrigger className={errors.time ? "border-destructive" : ""}>
+            <SelectValue placeholder={t("booking.selectTime")} />
+          </SelectTrigger>
+          <SelectContent>
+            {availableSlots.length === 0 && (
+              <SelectItem value="none" disabled>
+                {t("booking.noSlotsAvailable")}
+              </SelectItem>
+            )}
+            {availableSlots.map((slot) => (
+              <SelectItem key={slot} value={slot}>
+                {slot}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.time && <p className="text-sm text-destructive">{errors.time}</p>}
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div className="space-y-6">
+      <h3 className="font-heading font-semibold text-lg">{t("booking.yourInfo")}</h3>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="name">{t("booking.name")} *</Label>
+          <Input
+            id="name"
+            value={formData.patient_name}
+            onChange={(e) => handleChange("patient_name", e.target.value)}
+            className={errors.patient_name ? "border-destructive" : ""}
+            required
+          />
+          {errors.patient_name && <p className="text-sm text-destructive">{errors.patient_name}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="patient_ic">{t("booking.ic")} *</Label>
+          <Input
+            id="patient_ic"
+            type="text"
+            value={formData.patient_ic}
+            onChange={(e) => handleChange("patient_ic", e.target.value)}
+            className={errors.patient_ic ? "border-destructive" : ""}
+            required
+          />
+          {errors.patient_ic && <p className="text-sm text-destructive">{errors.patient_ic}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone">{t("booking.phone")} *</Label>
+          <Input
+            id="phone"
+            type="tel"
+            value={formData.contact_phone}
+            onChange={(e) => handleChange("contact_phone", e.target.value)}
+            className={errors.contact_phone ? "border-destructive" : ""}
+            required
+          />
+          {errors.contact_phone && <p className="text-sm text-destructive">{errors.contact_phone}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email">{t("booking.email")}</Label>
+          <Input
+            id="email"
+            type="email"
+            value={formData.contact_email}
+            onChange={(e) => handleChange("contact_email", e.target.value)}
+            className={errors.contact_email ? "border-destructive" : ""}
+          />
+          {errors.contact_email && <p className="text-sm text-destructive">{errors.contact_email}</p>}
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label htmlFor="symptoms">{t("booking.notes")}</Label>
+          <Input
+            id="symptoms"
+            type="text"
+            value={formData.symptoms_description}
+            onChange={(e) => handleChange("symptoms_description", e.target.value)}
+            className={errors.symptoms_description ? "border-destructive" : ""}
+          />
+          {errors.symptoms_description && <p className="text-sm text-destructive">{errors.symptoms_description}</p>}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <section id="booking" className="py-24 bg-gradient-to-b from-background to-accent/30">
       <div className="container mx-auto px-4">
@@ -249,198 +487,84 @@ const Booking = () => {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">Loading booking form...</span>
+              <span className="ml-2 text-muted-foreground">{t("booking.loadingForm")}</span>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-                  {/* Branch Selection */}
-                  <div className="space-y-2">
-                    <Label htmlFor="branch">{t('booking.branch')} *</Label>
-                    <Select value={formData.branch_id.toString()} onValueChange={(value) => handleChange("branch_id", parseInt(value))}>
-                      <SelectTrigger className={errors.branch_id ? "border-destructive" : ""}>
-                        <SelectValue placeholder={loading ? "Loading branches..." : t('booking.selectBranch')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {branches.map((branch) => (
-                          <SelectItem key={branch.id} value={branch.id.toString()}>
-                            {branch.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.branch_id && <p className="text-sm text-destructive">{errors.branch_id}</p>}
-                  </div>
-
-              {/* Doctor Selection */}
-              <div className="space-y-2">
-                <Label htmlFor="doctor">{t('booking.doctor')}</Label>
-                <Select value={formData.doctor_id.toString()} onValueChange={(value) => handleChange("doctor_id", parseInt(value, 10))}>
-                  <SelectTrigger className={errors.doctor_id ? "border-destructive" : ""}>
-                    <SelectValue placeholder={t('booking.selectDoctor')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">{t('booking.anyDoctor')}</SelectItem>
-                    {doctors.map((doctor) => (
-                      <SelectItem key={doctor.id} value={doctor.id.toString()}>
-                        {doctor.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.doctor_id && <p className="text-sm text-destructive">{errors.doctor_id}</p>}
-              </div>
-
-                  {/* Service Selection */}
-                  <div className="space-y-2">
-                    <Label htmlFor="service">{t('booking.service')} *</Label>
-                    <Select value={formData.service_id.toString()} onValueChange={(value) => handleChange("service_id", parseInt(value))}>
-                      <SelectTrigger className={errors.service_id ? "border-destructive" : ""}>
-                        <SelectValue placeholder={loading ? "Loading services..." : t('booking.selectService')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {services.map((service) => (
-                          <SelectItem key={service.id} value={service.id.toString()}>
-                            {service.name}
-                            {service.show_price && service.price_range ? ` - ${service.price_range}` : ""}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.service_id && <p className="text-sm text-destructive">{errors.service_id}</p>}
-                  </div>
-
-              {/* Date Selection */}
-              <div className="space-y-2">
-                <Label>{t('booking.date')} *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground",
-                        errors.date && "border-destructive"
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between gap-4">
+                  {steps.map((step, index) => (
+                    <div key={step.id} className="flex items-center flex-1">
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${
+                          currentStep >= step.id
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {step.id}
+                      </div>
+                      <div className="ml-3 hidden md:block">
+                        <p className="text-sm font-semibold text-foreground">{step.title}</p>
+                        <p className="text-xs text-muted-foreground">{step.description}</p>
+                      </div>
+                      {index < steps.length - 1 && (
+                        <div
+                          className={`mx-4 h-px flex-1 ${
+                            currentStep > step.id ? "bg-primary" : "bg-border"
+                          }`}
+                        />
                       )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>{t('booking.pickDate')}</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-                {errors.date && <p className="text-sm text-destructive">{errors.date}</p>}
-              </div>
-
-              {/* Time Selection */}
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="time">{t('booking.time')} *</Label>
-                <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
-                  <SelectTrigger className={errors.time ? "border-destructive" : ""}>
-                    <SelectValue placeholder={t('booking.selectTime')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableSlots.length === 0 && (
-                      <SelectItem value="none" disabled>
-                        {t('booking.noSlotsAvailable')}
-                      </SelectItem>
-                    )}
-                    {availableSlots.map((slot) => (
-                      <SelectItem key={slot} value={slot}>
-                        {slot}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.time && <p className="text-sm text-destructive">{errors.time}</p>}
-              </div>
-            </div>
-
-            <div className="border-t border-border pt-6 space-y-6">
-              <h3 className="font-heading font-semibold text-lg">Your Information</h3>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">{t('booking.name')} *</Label>
-                  <Input
-                    id="name"
-                    value={formData.patient_name}
-                    onChange={(e) => handleChange("patient_name", e.target.value)}
-                    className={errors.patient_name ? "border-destructive" : ""}
-                    required
-                  />
-                  {errors.patient_name && <p className="text-sm text-destructive">{errors.patient_name}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="patient_ic">{t('booking.ic') || "IC/Passport"} *</Label>
-                  <Input
-                    id="patient_ic"
-                    type="text"
-                    value={formData.patient_ic}
-                    onChange={(e) => handleChange("patient_ic", e.target.value)}
-                    className={errors.patient_ic ? "border-destructive" : ""}
-                    required
-                  />
-                  {errors.patient_ic && <p className="text-sm text-destructive">{errors.patient_ic}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">{t('booking.phone')} *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.contact_phone}
-                    onChange={(e) => handleChange("contact_phone", e.target.value)}
-                    className={errors.contact_phone ? "border-destructive" : ""}
-                    required
-                  />
-                  {errors.contact_phone && <p className="text-sm text-destructive">{errors.contact_phone}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t('booking.email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.contact_email}
-                    onChange={(e) => handleChange("contact_email", e.target.value)}
-                    className={errors.contact_email ? "border-destructive" : ""}
-                  />
-                  {errors.contact_email && <p className="text-sm text-destructive">{errors.contact_email}</p>}
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="symptoms">{t('booking.notes')}</Label>
-                  <Input
-                    id="symptoms"
-                    type="text"
-                    value={formData.symptoms_description}
-                    onChange={(e) => handleChange("symptoms_description", e.target.value)}
-                    className={errors.symptoms_description ? "border-destructive" : ""}
-                  />
-                  {errors.symptoms_description && <p className="text-sm text-destructive">{errors.symptoms_description}</p>}
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Booking..." : t('booking.submit')}
-            </Button>
+              <div className="rounded-2xl border border-muted bg-muted/40 p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-1">
+                  {steps[currentStep - 1]?.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {steps[currentStep - 1]?.description}
+                </p>
+              </div>
 
-            <p className="text-sm text-muted-foreground text-center">
-              You will receive a confirmation email and WhatsApp message shortly after booking.
-            </p>
-          </form>
+              {currentStep === 1 && renderStep1()}
+              {currentStep === 2 && renderStep2()}
+              {currentStep === 3 && renderStep3()}
+
+              <div className="flex flex-col md:flex-row items-center gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full md:w-auto"
+                  onClick={handlePrevStep}
+                  disabled={currentStep === 1}
+                >
+                  {t("booking.back")}
+                </Button>
+                {currentStep < 3 ? (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="w-full md:flex-1"
+                    onClick={handleNextStep}
+                  >
+                    {t("booking.next")}
+                  </Button>
+                ) : (
+                  <Button type="submit" size="lg" className="w-full md:flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? t("booking.submitting") : t("booking.submit")}
+                  </Button>
+                )}
+              </div>
+
+              {currentStep === 3 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  {t("booking.confirmationNote")}
+                </p>
+              )}
+            </form>
           )}
         </Card>
       </div>

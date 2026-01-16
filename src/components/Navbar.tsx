@@ -87,9 +87,11 @@ const Navbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Phone className="h-4 w-4" />
-              {t('nav.contactUs')}
+            <Button variant="outline" size="sm" className="gap-2" asChild>
+              <a href={`tel:${clinicInfo?.contact?.phone || '+60321428888'}`}>
+                <Phone className="h-4 w-4" />
+                {t('nav.contactUs')}
+              </a>
             </Button>
           </div>
 
@@ -132,9 +134,11 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button variant="outline" size="sm" className="w-full gap-2">
-                <Phone className="h-4 w-4" />
-                {t('nav.contactUs')}
+              <Button variant="outline" size="sm" className="w-full gap-2" asChild>
+                <a href={`tel:${clinicInfo?.contact?.phone || '+60321428888'}`}>
+                  <Phone className="h-4 w-4" />
+                  {t('nav.contactUs')}
+                </a>
               </Button>
             </div>
           </div>

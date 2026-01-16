@@ -26,9 +26,9 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
 
   const getStructuredData = () => {
     const clinicName = clinicInfo?.name || 'Klinik Harmoni';
-    const clinicEmail = clinicInfo?.email || 'info@klinikharmoni.my';
-    const clinicPhone = clinicInfo?.phone || '+60 3-1234 5678';
-    const clinicAddress = clinicInfo?.address || 'Kuala Lumpur, Malaysia';
+    const clinicEmail = clinicInfo?.contact?.email || 'info@klinikharmoni.my';
+    const clinicPhone = clinicInfo?.contact?.phone || '+60 3-1234 5678';
+    const clinicAddress = clinicInfo?.contact?.address || 'Kuala Lumpur, Malaysia';
 
     switch (type) {
       case 'organization':
@@ -50,9 +50,9 @@ const StructuredData = ({ type, data }: StructuredDataProps) => {
             "addressRegion": "Kuala Lumpur"
           },
           "sameAs": [
-            clinicInfo?.facebook,
-            clinicInfo?.instagram,
-            clinicInfo?.linkedin
+            clinicInfo?.social?.facebook,
+            clinicInfo?.social?.instagram,
+            clinicInfo?.social?.linkedin
           ].filter(Boolean),
           "hasOfferCatalog": {
             "@type": "OfferCatalog",
