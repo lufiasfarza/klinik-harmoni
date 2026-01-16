@@ -31,15 +31,22 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
     onClose();
   };
 
+  const descriptionText = (service.full_description || service.short_description || "")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="text-center">
+        <DialogHeader className="text-center sm:text-center">
           <DialogTitle className="text-3xl font-heading font-bold text-foreground">
             {service.name}
           </DialogTitle>
-          <DialogDescription className="text-lg text-muted-foreground mt-2">
-            {service.full_description || service.short_description}
+          <DialogDescription className="text-lg text-muted-foreground mt-2 whitespace-pre-line">
+            {descriptionText}
           </DialogDescription>
         </DialogHeader>
 

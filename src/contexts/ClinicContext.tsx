@@ -47,9 +47,30 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
       setError(null);
       const response = await apiService.getClinicInfo();
       if (response.success && response.data) {
+        // Map API response to ClinicInfo interface
+        // API returns nested structure: { contact: {...}, social: {...} }
+        // Frontend expects flat structure: { phone, email, facebook, instagram, ... }
+        const apiData = response.data as Record<string, unknown>;
+        const contact = (apiData.contact as Record<string, string>) || {};
+        const social = (apiData.social as Record<string, string>) || {};
+
         setClinicInfo({
           ...defaultClinicInfo,
-          ...response.data,
+          name: (apiData.name as string) || defaultClinicInfo.name,
+          tagline: (apiData.tagline as string) || defaultClinicInfo.tagline,
+          logo: apiData.logo as string,
+          // Flatten contact info
+          phone: contact.phone || defaultClinicInfo.phone,
+          email: contact.email || defaultClinicInfo.email,
+          whatsapp: contact.whatsapp || defaultClinicInfo.whatsapp,
+          address: contact.address || defaultClinicInfo.address,
+          // Flatten social media
+          facebook: social.facebook,
+          instagram: social.instagram,
+          twitter: social.twitter,
+          linkedin: social.linkedin,
+          tiktok: social.tiktok,
+          youtube: social.youtube,
         });
       }
     } catch (err) {

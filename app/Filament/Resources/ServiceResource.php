@@ -42,17 +42,7 @@ class ServiceResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Toggle::make('is_active')
                     ->default(true),
-                Forms\Components\CheckboxList::make('branches')
-                    ->label('Available Branches')
-                    ->options(Branch::where('is_active', true)->pluck('name', 'id'))
-                    ->columns(2)
-                    ->helperText('Select branches that offer this service'),
-                Forms\Components\CheckboxList::make('branches')
-                    ->label('Available Branches')
-                    ->options(Branch::where('is_active', true)->pluck('name', 'id'))
-                    ->columns(2)
-                    ->helperText('Select branches that offer this service'),
-                
+
                 // Branch Selection Section
                 Forms\Components\Section::make('Available Branches')
                     ->description('Select which branches offer this service')
@@ -61,35 +51,7 @@ class ServiceResource extends Resource
                             ->label('Branches Offering This Service')
                             ->options(Branch::where('is_active', true)->pluck('name', 'id'))
                             ->columns(2)
-                            ->required()
-                            ->helperText('Select all branches that offer this service. This will determine pricing ranges.'),
-                    ])
-                    ->collapsible(),
-                
-                // Branch Selection Section
-                Forms\Components\Section::make('Available Branches')
-                    ->description('Select which branches offer this service')
-                    ->schema([
-                        Forms\Components\CheckboxList::make('branches')
-                            ->label('Branches Offering This Service')
-                            ->options(Branch::where('is_active', true)->pluck('name', 'id'))
-                            ->columns(2)
-                            ->required()
-                            ->helperText('Select all branches that offer this service. This will determine pricing ranges.')
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                // Auto-calculate price range based on selected branches
-                                if (!empty($state)) {
-                                    $branchServices = \App\Models\BranchService::whereIn('branch_id', $state)
-                                        ->where('service_id', request()->route('record'))
-                                        ->get();
-                                    
-                                    if ($branchServices->count() > 0) {
-                                        $minPrice = $branchServices->min('price');
-                                        $maxPrice = $branchServices->max('price');
-                                        $set('price_range_display', "RM {$minPrice}-{$maxPrice}");
-                                    }
-                                }
-                            }),
+                            ->helperText('Select all branches that offer this service.'),
                     ])
                     ->collapsible(),
             ]);

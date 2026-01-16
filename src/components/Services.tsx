@@ -136,7 +136,7 @@ const Services = () => {
                         </p>
                       )}
                       {service.show_price && service.price_range && (
-                        <div className="flex items-center justify-end text-sm">
+                        <div className="flex items-center justify-center text-sm">
                           <span className="text-primary font-semibold">
                             {service.price_range}
                           </span>

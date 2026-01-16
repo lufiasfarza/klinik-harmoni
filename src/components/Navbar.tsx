@@ -33,11 +33,19 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center">
-              <span className="text-2xl font-heading text-primary-foreground">
-                {clinicInfo?.name?.charAt(0) || 'K'}
-              </span>
-            </div>
+            {clinicInfo?.logo ? (
+              <img
+                src={clinicInfo.logo}
+                alt={clinicInfo?.name || 'Klinik Harmoni'}
+                className="h-12 w-auto object-contain"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center">
+                <span className="text-2xl font-heading text-primary-foreground">
+                  {clinicInfo?.name?.charAt(0) || 'K'}
+                </span>
+              </div>
+            )}
             <div>
               <h1 className="text-xl font-heading font-semibold text-foreground">
                 {clinicInfo?.name || 'Klinik Harmoni'}

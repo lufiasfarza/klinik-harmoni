@@ -154,6 +154,7 @@ export interface Banner {
 export interface ClinicInfo {
   name: string;
   tagline?: string;
+  logo?: string;
   email?: string;
   phone?: string;
   whatsapp?: string;
@@ -162,6 +163,8 @@ export interface ClinicInfo {
   instagram?: string;
   twitter?: string;
   linkedin?: string;
+  tiktok?: string;
+  youtube?: string;
 }
 
 export interface ApiResponse<T> {
