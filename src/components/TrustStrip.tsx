@@ -1,4 +1,4 @@
-import { Award, ShieldCheck, Stethoscope, Users } from "lucide-react";
+import { ArrowUpRight, Award, ShieldCheck, Stethoscope, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useClinic } from "@/contexts/ClinicContext";
 
@@ -11,6 +11,9 @@ const TrustStrip = () => {
   const metrics = clinicInfo?.trust?.metrics ?? [];
   const badges = clinicInfo?.trust?.badges ?? [];
   const partners = clinicInfo?.trust?.partners ?? [];
+  const panelTitle = clinicInfo?.trust?.panel_title || t("trust.partnersTitle");
+  const panelLinkLabel = clinicInfo?.trust?.panel_link_label || t("trust.viewAllPanels");
+  const panelLinkUrl = clinicInfo?.trust?.panel_link_url;
 
   return (
     <section className="relative overflow-hidden py-16 bg-gradient-to-b from-background via-primary/5 to-background">
@@ -73,22 +76,37 @@ const TrustStrip = () => {
           </div>
         )}
 
-        {partners.length > 0 && (
+        {(partners.length > 0 || panelLinkUrl) && (
           <div className="mt-12">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground text-center mb-5">
-              {t("trust.partnersTitle")}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center justify-items-center">
-              {partners.map((logo, index) => (
-                <img
-                  key={`${logo}-${index}`}
-                  src={logo}
-                  alt={`${t("trust.partnerAlt")} ${index + 1}`}
-                  className="h-10 w-auto object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition"
-                  loading="lazy"
-                />
-              ))}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                {panelTitle}
+              </p>
+              {panelLinkUrl && (
+                <a
+                  href={panelLinkUrl}
+                  className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {panelLinkLabel}
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </a>
+              )}
             </div>
+            {partners.length > 0 && (
+              <div className="flex items-center gap-6 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-5 md:gap-6 md:overflow-visible">
+                {partners.map((logo, index) => (
+                  <img
+                    key={`${logo}-${index}`}
+                    src={logo}
+                    alt={`${t("trust.partnerAlt")} ${index + 1}`}
+                    className="h-10 w-auto object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition snap-center"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

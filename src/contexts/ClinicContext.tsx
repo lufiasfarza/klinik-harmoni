@@ -83,9 +83,9 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
           trust: {
             ...defaultClinicInfo.trust,
             ...data.trust,
-            metrics: data.trust?.metrics?.length ? data.trust.metrics : defaultClinicInfo.trust?.metrics,
-            badges: data.trust?.badges?.length ? data.trust.badges : defaultClinicInfo.trust?.badges,
-            partners: data.trust?.partners?.length ? data.trust.partners : defaultClinicInfo.trust?.partners,
+            metrics: data.trust?.metrics ?? [],
+            badges: data.trust?.badges ?? [],
+            partners: data.trust?.partners ?? [],
           },
         });
       }
