@@ -16,11 +16,11 @@ const Navbar = () => {
   const { clinicInfo } = useClinic();
 
   const navigation = [
-    { name: t('nav.home'), href: "#home" },
-    { name: t('nav.branches'), href: "#branches" },
-    { name: t('nav.services'), href: "#services" },
-    { name: t('nav.doctors'), href: "#doctors" },
-    { name: t('nav.bookNow'), href: "#booking" },
+    { name: t('nav.home'), href: "/" },
+    { name: t('nav.branches'), href: "/cawangan" },
+    { name: t('nav.services'), href: "/rawatan" },
+    { name: t('nav.doctors'), href: "/#doctors" },
+    { name: t('nav.bookNow'), href: "/temujanji" },
   ];
 
   const changeLanguage = (lng: string) => {

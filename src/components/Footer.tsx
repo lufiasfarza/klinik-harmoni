@@ -44,11 +44,11 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4 text-background">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2">
-              <li><a href="#home" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.home')}</a></li>
-              <li><a href="#services" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.services')}</a></li>
-              <li><a href="#doctors" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.doctors')}</a></li>
-              <li><a href="#branches" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.locations')}</a></li>
-              <li><a href="#booking" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.bookAppointment')}</a></li>
+              <li><a href="/" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.home')}</a></li>
+              <li><a href="/rawatan" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.services')}</a></li>
+              <li><a href="/#doctors" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.doctors')}</a></li>
+              <li><a href="/cawangan" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.locations')}</a></li>
+              <li><a href="/temujanji" className="text-sm text-background/80 hover:text-primary transition-colors">{t('footer.bookAppointment')}</a></li>
             </ul>
           </div>
 

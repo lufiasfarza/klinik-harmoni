@@ -10,6 +10,7 @@ import { ClinicProvider } from "./contexts/ClinicContext";
 import Index from "./pages/Index";
 import BranchLanding from "./pages/BranchLanding";
 import DoctorProfile from "./pages/DoctorProfile";
+import SitelinkPage from "./pages/SitelinkPage";
 import NotFound from "./pages/NotFound";
 import StructuredData from "./components/StructuredData";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -29,6 +30,10 @@ const App = () => (
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/cawangan" element={<SitelinkPage type="branches" />} />
+                  <Route path="/temujanji" element={<SitelinkPage type="booking" />} />
+                  <Route path="/rawatan" element={<SitelinkPage type="services" />} />
+                  <Route path="/hubungi" element={<SitelinkPage type="contact" />} />
                   <Route path="/branch/:slug" element={<BranchLanding source="branch" />} />
                   <Route path="/lp/:slug" element={<BranchLanding source="campaign" />} />
                   <Route path="/doctor/:id" element={<DoctorProfile />} />

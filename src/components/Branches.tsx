@@ -334,7 +334,9 @@ const Branches = () => {
                   </div>
                 </div>
 
-                {/* Doctor info can be shown on branch detail pages */}
+                <Button asChild variant="secondary" className="w-full">
+                  <a href={`/branch/${branch.slug}`}>Lihat Cawangan</a>
+                </Button>
               </div>
             </Card>
           ))}
