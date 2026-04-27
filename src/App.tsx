@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import i18n from "./i18n/config";
 import { ClinicProvider } from "./contexts/ClinicContext";
 import Index from "./pages/Index";
+import BranchLanding from "./pages/BranchLanding";
 import DoctorProfile from "./pages/DoctorProfile";
 import NotFound from "./pages/NotFound";
 import StructuredData from "./components/StructuredData";
@@ -28,6 +29,8 @@ const App = () => (
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/branch/:slug" element={<BranchLanding source="branch" />} />
+                  <Route path="/lp/:slug" element={<BranchLanding source="campaign" />} />
                   <Route path="/doctor/:id" element={<DoctorProfile />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />

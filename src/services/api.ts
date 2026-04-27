@@ -48,6 +48,42 @@ export interface Branch {
   accepts_online_booking: boolean;
 }
 
+export interface LandingTestimonial {
+  name: string;
+  title?: string;
+  message: string;
+  rating: number;
+}
+
+export interface BranchLandingData extends Partial<Branch> {
+  branch?: {
+    id: number;
+    name: string;
+    slug: string;
+    address?: string | null;
+  };
+  headline?: string | null;
+  subheadline?: string | null;
+  cta_primary_label?: string | null;
+  cta_secondary_label?: string | null;
+  campaign_code?: string | null;
+  call_link?: string | null;
+  whatsapp_link?: string | null;
+  map_embed_url?: string | null;
+  maps_open_url?: string | null;
+  walk_in_url?: string | null;
+  hero_image_url?: string | null;
+  gallery_image_urls?: string[];
+  services_list?: string[];
+  testimonials?: LandingTestimonial[];
+  review_count?: number;
+  average_rating?: number | null;
+  trust_badges?: string[];
+  faq?: Array<{ question: string; answer: string }>;
+  meta_title?: string | null;
+  meta_description?: string | null;
+}
+
 export interface Doctor {
   id: number;
   name: string;
@@ -351,6 +387,14 @@ class ApiService {
 
   async getBranch(slug: string): Promise<ApiResponse<Branch>> {
     return this.request(`/branches/${slug}`);
+  }
+
+  async getBranchLanding(slug: string): Promise<ApiResponse<BranchLandingData>> {
+    return this.request(`/branches/${slug}/landing`);
+  }
+
+  async getCampaignLanding(slug: string): Promise<ApiResponse<BranchLandingData>> {
+    return this.request(`/lp/${slug}`);
   }
 
   async getBranchDoctors(slug: string): Promise<ApiResponse<Doctor[]>> {
